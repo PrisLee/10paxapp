@@ -72,11 +72,16 @@ Do not edit `index.html` or `public/index.html` by hand — both are generated f
 
 ### Code format
 
-`PAX-<member index, base36>-<unavailable-slot bitmask, base36>-<checksum>`
+`PAX-<member id tag>-<unavailable-slot bitmask, base36>-<checksum>`
 
-Each day contributes as many bits as it has slots (4 on a weekday, 12 at the weekend),
-laid end to end from the roster's start Monday — so a code is only meaningful against
-the roster it was generated from. A mistyped or stale code is
+Each day contributes as many bits as it has slots (4 on a weeknight, 12 at the
+weekend), laid end to end from the roster's start Monday, so a code only means
+anything against the date window it was made for.
+
+The first field is a tag derived from the member's **stable id**, not their position in
+the list. An earlier version encoded the position, which filed the answer against
+whoever had shifted into that slot after a roster edit. Codes in the old format are now
+recognised and refused with an explanation rather than silently misattributed. A mistyped or stale code is
 rejected rather than silently misread.
 
 ## Layout
@@ -142,9 +147,15 @@ a tab is open and visible.
 ### One destructive edit, on purpose
 
 An answer is a bitmask over one exact date window. Move `start` or `weeks` and every
-stored mask means something different, so saving new dates **clears every answer** and
-says so. Adding, renaming and removing people is safe by contrast — that is why the
-local storage key excludes the member list.
+stored mask means something different, so saving new dates **clears every answer** —
+server-side, and each client's own unsent marks too — and tells whoever it affects.
+Everything else is safe by contrast: renaming the group, and adding, renaming or
+removing people, all preserve the answers already gathered. That is why the local
+storage key covers only the date window.
+
+Older builds keyed local data two other ways, the earliest of them by member position
+rather than id. `migrateLocal()` adopts either, remapping positions to ids, so an
+upgrade does not silently drop what an organiser had collected.
 
 ### Access model
 

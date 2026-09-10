@@ -724,7 +724,7 @@
       <div class="slab">
         <label class="field" for="paste">
           Paste it here
-          <input type="text" id="paste" placeholder="PAX-3-K7X2M9-B" spellcheck="false" autocomplete="off">
+          <input type="text" id="paste" placeholder="PAX-4KDQ2P-K7X2M9-B" spellcheck="false" autocomplete="off">
         </label>
         <div class="row">
           <button class="act" id="addcode">Add it</button>
@@ -1021,39 +1021,90 @@
     return mask;
   }
 
+  // A code names WHO it belongs to, not where they sat in the list. Positions
+  // shift when the roster is edited, which used to file an answer against
+  // whoever had moved into that slot.
+  function memberTag(id) {
+    return String(id).toUpperCase().replace(/[^0-9A-Z]/g, "").slice(0, 6) || "0";
+  }
+
   function encodeCode(id, bitSet) {
-    var idx = Math.max(0, memberIndex(id));
-    var body = idx.toString(36).toUpperCase() + "-" + maskOf(bitSet).toString(36).toUpperCase();
+    var body = memberTag(id) + "-" + maskOf(bitSet).toString(36).toUpperCase();
     return "PAX-" + body + "-" + checksum(body);
   }
 
-  function decodeCode(raw, nMembers) {
+  // Returns the member id the code belongs to, or throws a message to show.
+  function decodeCode(raw) {
     var t = String(raw || "").toUpperCase().replace(/\s+/g, "").replace(/^PAX-/, "");
     var parts = t.split("-");
-    if (parts.length !== 3) throw new Error("That code is missing a bit. It should look like PAX-3-K7X2M9-B.");
+    if (parts.length !== 3) throw new Error("That code is missing a bit. It should look like PAX-4KDQ2P-K7X2M9-B.");
     var body = parts[0] + "-" + parts[1];
     if (checksum(body) !== parts[2]) throw new Error("Something got lost in the copy-paste. Grab the code again and try once more.");
-    var idx = parseInt(parts[0], 36);
-    if (isNaN(idx) || idx < 0 || idx >= nMembers) throw new Error("This code belongs to somebody who is not on the list. Maybe it came from an older link.");
     if (!/^[0-9A-Z]+$/.test(parts[1])) throw new Error("There are characters in there that do not belong in a code.");
+
+    var hits = cfg.members.filter(function (m) { return memberTag(m.id) === parts[0]; });
+    if (!hits.length) {
+      // Old positional codes decoded as a bare index. Read one rather than
+      // silently filing it against whoever now sits at that position.
+      if (/^[0-9A-Z]{1,2}$/.test(parts[0]) && parseInt(parts[0], 36) < cfg.members.length) {
+        throw new Error("That is a code from an older version of this link. Ask them to open the link again and send a fresh one.");
+      }
+      throw new Error("This code belongs to somebody who is not on the list. Maybe it came from an older link.");
+    }
+    if (hits.length > 1) throw new Error("Two people on the list share that code. Remove and re-add one of them.");
+
     var mask = 0n;
     for (var i = 0; i < parts[1].length; i++) mask = mask * 36n + BigInt(parseInt(parts[1][i], 36));
-    return { idx: idx, mask: mask };
+    return { id: hits[0].id, mask: mask };
   }
 
   function maskHas(mask, bit) { return ((mask >> BigInt(bit)) & 1n) === 1n; }
 
   /* ---------- local storage ---------- */
 
+  function hashKey(str) {
+    var h = 0;
+    for (var i = 0; i < str.length; i++) h = (h * 33 + str.charCodeAt(i)) | 0;
+    return "10pax:" + (h >>> 0).toString(36);
+  }
+
   function cfgKey(c) {
     // Only the date window belongs in the key, because only the date window
     // changes what a stored bitmask MEANS. The group name and the member list
     // are deliberately excluded: renaming the group, or adding and renaming
     // people, must never orphan the answers already gathered.
-    var s = c.start + "/" + c.weeks;
-    var h = 0;
-    for (var i = 0; i < s.length; i++) h = (h * 33 + s.charCodeAt(i)) | 0;
-    return "10pax:" + (h >>> 0).toString(36);
+    return hashKey(c.start + "/" + c.weeks);
+  }
+
+  /**
+   * Two earlier builds keyed this data differently, and the older of them keyed
+   * answers by member POSITION rather than id. Adopt whichever is found instead
+   * of starting empty, and remap positions to ids on the way through.
+   */
+  function migrateLocal() {
+    if (load(store, null)) return null;
+    var older = [
+      { key: hashKey(cfg.name + "@" + cfg.start + "/" + cfg.weeks), byIndex: false },
+      { key: hashKey(cfg.members.map(function (m) { return m.name; }).join("|") +
+        "@" + cfg.start + "/" + cfg.weeks), byIndex: true }
+    ];
+    for (var i = 0; i < older.length; i++) {
+      var old = load(older[i].key, null);
+      if (!old) continue;
+      var byIndex = older[i].byIndex;
+      var out = { me: null, busy: Array.isArray(old.busy) ? old.busy : [], responses: {} };
+      var raw = (old.responses && typeof old.responses === "object") ? old.responses : {};
+      Object.keys(raw).forEach(function (k) {
+        var m = byIndex ? cfg.members[+k] : null;
+        var id = byIndex ? (m && m.id) : k;
+        if (id) out.responses[id] = raw[k];
+      });
+      if (typeof old.me === "number" && cfg.members[old.me]) out.me = cfg.members[old.me].id;
+      else if (typeof old.me === "string") out.me = old.me;
+      save(store, out);
+      return { count: Object.keys(out.responses).length };
+    }
+    return null;
   }
 
   function load(key, fallback) {
@@ -1071,6 +1122,7 @@
 
   var cfg, isExample, store, me, busy, responses, tab = "mine", selDay = 0;
   var cloud = { on: false, up: false, gid: null, gone: false };
+  var noteText = "";
   var wantGid = null;
 
   function nDays() { return cfg.weeks * 7; }
@@ -1088,6 +1140,13 @@
   function bootState() {
     offsets = buildOffsets();
     store = cloud.gid ? "10pax:g:" + cloud.gid : cfgKey(cfg);
+    if (!cloud.gid) {
+      var moved = migrateLocal();
+      if (moved && moved.count) {
+        noteText = "Carried " + moved.count + " answer" + (moved.count === 1 ? "" : "s") +
+          " over from an older version of this app.";
+      }
+    }
     var saved = load(store, null) || {};
     me = typeof saved.me === "string" ? saved.me : null;
     if (!me || !validMe()) me = cfg.members.length ? cfg.members[0].id : null;
@@ -1166,9 +1225,23 @@
     bootState();
   }
 
+  // Set when we change the hash ourselves, so the hashchange handler can tell
+  // our own writes apart from the person actually navigating.
+  var selfHash = false;
+
   function pushHash() {
     var want = cloud.on ? "g=" + cloud.gid : "c=" + encodeCfg(cfg);
-    if (location.hash.replace(/^#/, "") !== want) location.hash = want;
+    if (location.hash.replace(/^#/, "") === want) return;
+    selfHash = true;
+    // replaceState, not location.hash: roster edits save on every keystroke-ish
+    // action, and pushing a history entry each time turns Back into a walk
+    // through old roster states.
+    if (history.replaceState) {
+      history.replaceState(null, "", location.pathname + location.search + "#" + want);
+      selfHash = false;   // replaceState fires no hashchange
+    } else {
+      location.hash = want;
+    }
   }
 
   /* ---------- api ---------- */
@@ -1467,6 +1540,11 @@
       n.innerHTML = cloud.up
         ? "<p><strong>Cannot reach this group.</strong> The link points at a shared group, but the server did not answer. Check your connection and reload.</p>"
         : "<p><strong>This link needs the shared version.</strong> It points at a group on the server, but this copy of the app has no server behind it. Open the link on the deployed site instead.</p>";
+      return;
+    }
+    if (noteText) {
+      n.hidden = false;
+      n.textContent = noteText;
       return;
     }
     n.hidden = true;
@@ -1908,13 +1986,12 @@
       var raw = $("paste").value;
       if (!raw.trim()) { say("paste-msg", "Paste a code in first.", "err"); return; }
       try {
-        var r = decodeCode(raw, cfg.members.length);
-        var id = cfg.members[r.idx].id;
-        responses[id] = r.mask;
+        var r = decodeCode(raw);
+        responses[r.id] = r.mask;
         persist();
         renderAll();
         $("paste").value = "";
-        say("paste-msg", memberName(id) + " is in.", "ok");
+        say("paste-msg", memberName(r.id) + " is in.", "ok");
       } catch (err) {
         say("paste-msg", err.message, "err");
       }
@@ -2089,6 +2166,8 @@
     });
 
     window.addEventListener("hashchange", function () {
+      // Our own write: keep the person where they were.
+      if (selfHash) { selfHash = false; return; }
       var g = /^#g=([a-z0-9]{6,40})$/.exec(location.hash || "");
       if (g && g[1] === cloud.gid) return;
       stopPoll();

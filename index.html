@@ -924,6 +924,24 @@
     return b64uEncode(JSON.stringify(o));
   }
 
+  /**
+   * A pick only means something if its hour is one that day actually offers.
+   * 10am on a weeknight has no slot, so hoursFor(day).indexOf(hour) returns
+   * -1 and any count drawn from it silently belongs to the previous day.
+   * Anything that does not line up is treated as no pick at all. Used for
+   * both a decoded #c= link and a group coming back from the server, so
+   * neither a stale link nor a hand-edited row can produce a bogus tally.
+   * Depends only on day % 7, so it is safe to call before offsets exist.
+   */
+  function cleanPickFor(d, h, weeks) {
+    if (typeof d !== "number" || typeof h !== "number") return null;
+    var day = Math.round(d), hour = Math.round(h);
+    if (!isFinite(day) || !isFinite(hour)) return null;
+    if (day < 0 || day >= weeks * 7) return null;
+    if (hoursFor(day).indexOf(hour) < 0) return null;
+    return { day: day, hour: hour };
+  }
+
   function decodeCfg(raw) {
     var o = JSON.parse(b64uDecode(raw));
     if (!Array.isArray(o.m) || !o.m.length) throw new Error("no names");
@@ -936,11 +954,7 @@
         ? { id: String(entry[0]).slice(0, 24), name: String(entry[1]).slice(0, 40) }
         : { id: "i" + i, name: String(entry).slice(0, 40) };
     });
-    var pick = null;
-    if (typeof o.d === "number" && o.d >= 0 && o.d < weeks * 7 &&
-      typeof o.h === "number" && o.h >= WEEKEND_FROM && o.h < UNTIL) {
-      pick = { day: Math.round(o.d), hour: Math.round(o.h) };
-    }
+    var pick = cleanPickFor(o.d, o.h, weeks, members);
     return {
       name: String(o.n || "").slice(0, 60),
       members: members,
@@ -1032,10 +1046,11 @@
   /* ---------- local storage ---------- */
 
   function cfgKey(c) {
-    // Deliberately excludes the member list: adding or renaming somebody must not
-    // orphan the answers already gathered. Only the date window changes the key,
-    // because that is what changes the meaning of a stored bitmask.
-    var s = c.name + "@" + c.start + "/" + c.weeks;
+    // Only the date window belongs in the key, because only the date window
+    // changes what a stored bitmask MEANS. The group name and the member list
+    // are deliberately excluded: renaming the group, or adding and renaming
+    // people, must never orphan the answers already gathered.
+    var s = c.start + "/" + c.weeks;
     var h = 0;
     for (var i = 0; i < s.length; i++) h = (h * 33 + s.charCodeAt(i)) | 0;
     return "10pax:" + (h >>> 0).toString(36);
@@ -1203,12 +1218,20 @@
       members: (st.members || []).map(function (m) { return { id: m.id, name: m.name, claimed: !!m.claimed }; }),
       start: st.group.start,
       weeks: st.group.weeks,
-      pick: st.group.pick || null
+      pick: cleanPickFor((st.group.pick || {}).day, (st.group.pick || {}).hour,
+        Math.min(8, Math.max(1, Math.round(+st.group.weeks || 4))))
     };
-    var moved = !cfg || cfg.start !== incoming.start || cfg.weeks !== incoming.weeks;
+    var moved = !!cfg && (cfg.start !== incoming.start || cfg.weeks !== incoming.weeks);
+    var hadMarks = moved && busy && busy.size > 0;
     cfg = incoming;
     offsets = buildOffsets();
-    if (moved) busy = new Set(Array.from(busy).filter(function (b) { return b < totalBits(); }));
+    if (moved) {
+      // A bit is an offset into one exact window. Keeping bits across a move
+      // would leave the same numbers pointing at different dates, and Done
+      // would submit them as if they were still right. Drop them.
+      busy = new Set();
+      persist();
+    }
     responses = {};
     Object.keys(st.answers || {}).forEach(function (mid) {
       if (/^[0-9]+$/.test(String(st.answers[mid]))) responses[mid] = BigInt(st.answers[mid]);
@@ -1217,6 +1240,10 @@
     selDay = cfg.pick ? cfg.pick.day : firstFutureDay();
     poll.last = st.group.updatedAt;
     renderAll();
+    if (hadMarks) {
+      say("finish-msg", "Whoever is organising moved the dates, so the hours you had marked were cleared. Have another go.", "err");
+      say("slot-msg", "The dates moved. Start again on this day.", "err");
+    }
   }
 
   function refresh() {

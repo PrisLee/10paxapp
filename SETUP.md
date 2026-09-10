@@ -108,11 +108,20 @@ hashes in constant time. Consequences worth knowing:
 - **Anyone with the link can still read everything.** That is the deliberate trade for
   nobody needing an account.
 
-## Costs
+## Costs and abuse
 
 The free tier covers 100,000 Worker requests a day and 5 million D1 rows read. Ten
 people picking a date uses a few hundred requests. The app polls every 8 seconds only
 while a tab is open and visible, so an idle tab costs nothing.
+
+Creating a group needs no credentials — that is the point of the design — so it is the
+one endpoint a stranger who finds your URL can call. The Worker caps it at **20 new
+groups per IP per hour** (`CREATE_LIMIT` in `worker/index.js`) and answers 429 with a
+`Retry-After` beyond that. That stops casual scripting, not a distributed effort.
+
+If the URL ever gets attention you did not want, put [Turnstile](https://developers.cloudflare.com/turnstile/)
+in front of the create endpoint — it is free, needs no login UI, and is the proper
+answer for a public no-auth client. Until then, the rate limit is what you have.
 
 ## Undeploying
 

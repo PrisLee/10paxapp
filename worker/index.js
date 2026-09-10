@@ -22,8 +22,11 @@ const MAX_NAME = 40;
 const MAX_GROUP_NAME = 60;
 const MAX_MEMBERS = 30;
 const MAX_MASK = 400;
-const HOUR_MIN = 10;
-const HOUR_MAX = 22;
+const WEEKEND_FROM = 10;   // weekends run 10am-10pm
+const WEEKDAY_FROM = 18;   // weeknights run 6-10pm
+const UNTIL = 22;
+const CREATE_LIMIT = 20;           // groups per bucket per window
+const CREATE_WINDOW_MS = 3600_000; // one hour
 
 const CORS = {
   "access-control-allow-origin": "*",
@@ -90,14 +93,47 @@ function validWeeks(v) {
   return Number.isFinite(n) && n >= 1 && n <= 8 ? n : null;
 }
 
+/** Day offsets are always from a Monday, so day % 7 gives the weekday. */
+function firstHourOf(day) {
+  return (day % 7) >= 5 ? WEEKEND_FROM : WEEKDAY_FROM;
+}
+
 function validPick(pick, weeks) {
   if (pick === null || pick === undefined) return null;
   const day = Math.round(Number(pick.day));
   const hour = Math.round(Number(pick.hour));
   if (!Number.isFinite(day) || !Number.isFinite(hour)) return undefined;
   if (day < 0 || day >= weeks * 7) return undefined;
-  if (hour < HOUR_MIN || hour >= HOUR_MAX) return undefined;
+  // The hour has to be one THIS day actually offers. A global 10..22 check
+  // would accept 10am on a weeknight, which the client then cannot locate in
+  // that day's slot list, and it silently reports another day's tally.
+  if (hour < firstHourOf(day) || hour >= UNTIL) return undefined;
   return { day, hour };
+}
+
+/**
+ * Rolling per-bucket limit on group creation. Creating a group needs no
+ * credentials by design, so without this anyone can script it until the
+ * database is full. Turnstile is the stronger answer; this needs no setup.
+ */
+async function overCreateLimit(db, request) {
+  const bucket = request.headers.get("cf-connecting-ip") || "local";
+  const now = Date.now();
+  const row = await db.prepare(
+    "INSERT INTO rate (bucket, hits, window_start) VALUES (?, 1, ?)" +
+    " ON CONFLICT (bucket) DO UPDATE SET" +
+    "   hits = CASE WHEN ? - rate.window_start >= ? THEN 1 ELSE rate.hits + 1 END," +
+    "   window_start = CASE WHEN ? - rate.window_start >= ? THEN ? ELSE rate.window_start END" +
+    " RETURNING hits, window_start"
+  ).bind(bucket, now, now, CREATE_WINDOW_MS, now, CREATE_WINDOW_MS, now).first();
+
+  if (!row || row.hits <= CREATE_LIMIT) return null;
+  const retryAfter = Math.max(1, Math.ceil((row.window_start + CREATE_WINDOW_MS - now) / 1000));
+  return json(
+    { error: `That is a lot of groups in one go. Try again in ${Math.ceil(retryAfter / 60)} minutes.` },
+    429,
+    { "retry-after": String(retryAfter) }
+  );
 }
 
 async function body(request) {
@@ -170,6 +206,9 @@ async function mayAnswerAs(db, gid, mid, request) {
 /* ---------- routes ---------- */
 
 async function createGroup(db, request) {
+  const limited = await overCreateLimit(db, request);
+  if (limited) return limited;
+
   const b = await body(request);
   if (!b) return fail(400, "Send a JSON body.");
 

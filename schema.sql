@@ -32,3 +32,11 @@ CREATE TABLE IF NOT EXISTS answers (
   updated_at INTEGER NOT NULL,
   PRIMARY KEY (group_id, member_id)
 );
+
+-- Rate limiting for unauthenticated group creation. One row per bucket
+-- (an IP, or "local" when there is no CF header), holding a rolling window.
+CREATE TABLE IF NOT EXISTS rate (
+  bucket       TEXT PRIMARY KEY,
+  hits         INTEGER NOT NULL,
+  window_start INTEGER NOT NULL
+);

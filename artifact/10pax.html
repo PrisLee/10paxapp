@@ -1,9 +1,8 @@
 <title>10 Pax</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..700&family=IBM+Plex+Mono:wght@400;500&family=Public+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:ital,wght@0,400;0,600;0,700;1,400&family=Space+Mono:wght@400;700&display=swap">
 <script>
-  // Runs before paint so an explicit theme choice doesn't flash the other theme.
   try {
     var t0 = localStorage.getItem("10pax:theme");
     if (t0 === "light" || t0 === "dark") document.documentElement.setAttribute("data-theme", t0);
@@ -11,71 +10,77 @@
 </script>
 <style>
   :root {
-    --paper: #F6F7F5;
+    --paper: #FBF7FF;
     --surface: #FFFFFF;
-    --surface-2: #EDEFEC;
-    --ink: #161A18;
-    --ink-2: #4A524E;
-    --ink-3: #78827D;
-    --line: #D9DDD8;
-    --line-2: #C3C9C3;
-    --accent: #2F6B5F;
-    --accent-ink: #23524A;
-    --accent-soft: #DEEBE7;
-    --on-accent: #FBFDFC;
-    --warn: #7E5A00;
-    --warn-soft: #F4E8C9;
-    --bad: #9B3B38;
-    --bad-soft: #F1DCDA;
-    --scrim: rgba(22, 26, 24, .82);
-    --shadow: 0 1px 2px rgba(22, 26, 24, .06), 0 8px 24px -16px rgba(22, 26, 24, .28);
-    --display: "Bricolage Grotesque", "Trebuchet MS", sans-serif;
-    --body: "Public Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+    --surface-2: #F1EBFE;
+    --ink: #1E1733;
+    --ink-2: #55496F;
+    --ink-3: #8A7FA3;
+    --line: #E4DBF7;
+    --line-2: #CDBFEE;
+    --grape: #6D4AFF;
+    --grape-soft: #EAE2FF;
+    --mint: #0B9A70;
+    --mint-soft: #D4F4E8;
+    --sun: #B87200;
+    --sun-soft: #FFEBC6;
+    --coral: #D93E51;
+    --coral-soft: #FFE0E3;
+    --sky: #1B8CCC;
+    --pink: #D4479A;
+    --on-grape: #FFFFFF;
+    --shadow: 0 2px 3px rgba(30, 23, 51, .05), 0 10px 26px -18px rgba(30, 23, 51, .35);
+    --display: "Fredoka", "Trebuchet MS", sans-serif;
+    --body: "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --mono: "Space Mono", ui-monospace, "SF Mono", Menlo, monospace;
   }
 
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --paper: #101413;
-      --surface: #171C1A;
-      --surface-2: #1F2624;
-      --ink: #EDF0EE;
-      --ink-2: #AEB8B3;
-      --ink-3: #7C8781;
-      --line: #2C3431;
-      --line-2: #3B4541;
-      --accent: #74C4B0;
-      --accent-ink: #A8DCCE;
-      --accent-soft: #1C3530;
-      --on-accent: #0C110F;
-      --warn: #D9AE4E;
-      --warn-soft: #33290F;
-      --bad: #E0908A;
-      --bad-soft: #3A2321;
-      --scrim: rgba(4, 7, 6, .88);
-      --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px -16px rgba(0, 0, 0, .7);
+      --paper: #14111F;
+      --surface: #1D1930;
+      --surface-2: #262040;
+      --ink: #F3EFFF;
+      --ink-2: #B9AEDA;
+      --ink-3: #8579AB;
+      --line: #322A4E;
+      --line-2: #453A66;
+      --grape: #A78BFF;
+      --grape-soft: #2B2350;
+      --mint: #4DD4A8;
+      --mint-soft: #12332A;
+      --sun: #F0B94E;
+      --sun-soft: #3A2D10;
+      --coral: #FF8A96;
+      --coral-soft: #3D1F26;
+      --sky: #62BDF0;
+      --pink: #F183C4;
+      --on-grape: #14111F;
+      --shadow: 0 2px 3px rgba(0, 0, 0, .3), 0 10px 26px -18px rgba(0, 0, 0, .8);
     }
   }
 
   :root[data-theme="dark"] {
-    --paper: #101413;
-    --surface: #171C1A;
-    --surface-2: #1F2624;
-    --ink: #EDF0EE;
-    --ink-2: #AEB8B3;
-    --ink-3: #7C8781;
-    --line: #2C3431;
-    --line-2: #3B4541;
-    --accent: #74C4B0;
-    --accent-ink: #A8DCCE;
-    --accent-soft: #1C3530;
-    --on-accent: #0C110F;
-    --warn: #D9AE4E;
-    --warn-soft: #33290F;
-    --bad: #E0908A;
-    --bad-soft: #3A2321;
-    --scrim: rgba(4, 7, 6, .88);
-    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px -16px rgba(0, 0, 0, .7);
+    --paper: #14111F;
+    --surface: #1D1930;
+    --surface-2: #262040;
+    --ink: #F3EFFF;
+    --ink-2: #B9AEDA;
+    --ink-3: #8579AB;
+    --line: #322A4E;
+    --line-2: #453A66;
+    --grape: #A78BFF;
+    --grape-soft: #2B2350;
+    --mint: #4DD4A8;
+    --mint-soft: #12332A;
+    --sun: #F0B94E;
+    --sun-soft: #3A2D10;
+    --coral: #FF8A96;
+    --coral-soft: #3D1F26;
+    --sky: #62BDF0;
+    --pink: #F183C4;
+    --on-grape: #14111F;
+    --shadow: 0 2px 3px rgba(0, 0, 0, .3), 0 10px 26px -18px rgba(0, 0, 0, .8);
   }
 
   * { box-sizing: border-box; }
@@ -86,8 +91,8 @@
     background: var(--paper);
     color: var(--ink);
     font-family: var(--body);
-    font-size: 15px;
-    line-height: 1.5;
+    font-size: 15.5px;
+    line-height: 1.55;
     -webkit-font-smoothing: antialiased;
     overflow-x: hidden;
   }
@@ -102,102 +107,114 @@
     gap: 22px;
   }
 
-  .mast { display: flex; flex-direction: column; gap: 10px; }
+  /* ---- masthead ---- */
+  .mast { display: flex; flex-direction: column; gap: 9px; }
   .toprow { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
 
   .wordmark {
     font-family: var(--display);
     font-weight: 700;
-    font-size: 30px;
-    letter-spacing: -.02em;
-    line-height: 1.05;
+    font-size: 34px;
+    letter-spacing: -.01em;
+    line-height: 1.02;
     margin: 0;
     min-width: 0;
+    color: var(--grape);
   }
+  .wordmark .two { color: var(--pink); }
 
   .wordmark .count {
     display: inline-block;
     font-family: var(--mono);
-    font-weight: 500;
-    font-size: 13px;
-    color: var(--accent);
-    background: var(--accent-soft);
-    border-radius: 3px;
-    padding: 2px 7px;
+    font-weight: 700;
+    font-size: 12px;
+    color: var(--mint);
+    background: var(--mint-soft);
+    border-radius: 999px;
+    padding: 3px 10px;
     letter-spacing: 0;
     vertical-align: middle;
-    margin-left: 6px;
+    margin-left: 8px;
   }
 
   button.icon {
     appearance: none;
     font: inherit;
     font-size: 13px;
+    font-weight: 600;
     display: flex;
     align-items: center;
     gap: 6px;
     flex: none;
     background: var(--surface);
     color: var(--ink-2);
-    border: 1px solid var(--line);
+    border: 2px solid var(--line);
     border-radius: 999px;
-    padding: 6px 11px;
+    padding: 6px 12px;
     cursor: pointer;
     white-space: nowrap;
   }
   button.icon:hover { color: var(--ink); border-color: var(--line-2); }
-  button.icon.on { background: var(--accent-soft); border-color: var(--accent-soft); color: var(--accent-ink); font-weight: 500; }
+  button.icon.on { background: var(--grape-soft); border-color: var(--grape); color: var(--grape); }
   button.icon svg { width: 14px; height: 14px; flex: none; }
 
   .tagline { margin: 0; color: var(--ink-2); max-width: 46ch; font-size: 16px; }
 
   .groupline {
     font-family: var(--mono);
-    font-size: 12px;
+    font-size: 11.5px;
     text-transform: uppercase;
-    letter-spacing: .08em;
+    letter-spacing: .06em;
     color: var(--ink-3);
     margin: 0;
   }
 
+  /* ---- notice ---- */
   .notice {
-    background: var(--warn-soft);
-    border-left: 3px solid var(--warn);
+    background: var(--sun-soft);
+    border: 2px solid var(--sun);
+    border-radius: 12px;
     padding: 12px 14px;
     color: var(--ink);
-    font-size: 14px;
+    font-size: 14.5px;
   }
-  .notice strong { font-weight: 600; }
+  .notice strong { font-weight: 700; }
   .notice p { margin: 0; }
 
-  button.confirmed {
-    appearance: none;
-    font: inherit;
-    text-align: left;
-    cursor: pointer;
-    background: var(--accent-soft);
-    border: 1px solid var(--accent);
-    border-radius: 10px;
-    padding: 15px;
+  /* ---- locked-in banner ---- */
+  .locked {
+    background: var(--grape);
+    border-radius: 16px;
+    padding: 17px 18px;
     display: flex;
     align-items: center;
-    gap: 12px;
-    width: 100%;
-    color: var(--accent-ink);
+    gap: 14px;
+    color: var(--on-grape);
+    animation: pop .22s ease-out;
   }
-  button.confirmed:hover { filter: brightness(1.04); }
-  button.confirmed .body { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
-  button.confirmed .lede {
+  @keyframes pop { from { transform: scale(.97); } to { transform: scale(1); } }
+
+  .locked .flag {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: .1em;
+    background: rgba(255, 255, 255, .22);
+    border-radius: 999px;
+    padding: 4px 11px;
+    flex: none;
+  }
+  .locked .body { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+  .locked .lede {
     font-family: var(--display);
     font-weight: 700;
     font-size: 20px;
-    letter-spacing: -.01em;
     line-height: 1.15;
   }
-  button.confirmed .sub { font-size: 13.5px; opacity: .9; }
-  button.confirmed .arrow { margin-left: auto; flex: none; font-size: 20px; opacity: .7; }
+  .locked .sub { font-size: 13.5px; opacity: .88; }
 
-  .tabs { display: flex; gap: 2px; background: var(--surface-2); padding: 3px; border-radius: 8px; }
+  /* ---- tabs ---- */
+  .tabs { display: flex; gap: 3px; background: var(--surface-2); padding: 4px; border-radius: 999px; }
 
   .tabs button {
     flex: 1;
@@ -206,162 +223,165 @@
     border: 0;
     background: transparent;
     font: inherit;
-    font-size: 14px;
-    font-weight: 500;
+    font-size: 14.5px;
+    font-weight: 700;
     color: var(--ink-2);
-    padding: 8px 4px;
-    border-radius: 6px;
+    padding: 9px 6px;
+    border-radius: 999px;
     cursor: pointer;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  .tabs button[aria-selected="true"] {
-    background: var(--surface);
-    color: var(--ink);
-    box-shadow: 0 1px 2px rgba(22, 26, 24, .1);
-  }
-  .tabs button:hover:not([aria-selected="true"]) { color: var(--ink); }
+  .tabs button[aria-selected="true"] { background: var(--grape); color: var(--on-grape); }
+  .tabs button:hover:not([aria-selected="true"]) { color: var(--grape); }
 
-  .panel { display: flex; flex-direction: column; gap: 22px; }
+  /* ---- panels ---- */
+  .panel { display: flex; flex-direction: column; gap: 24px; }
   section { display: flex; flex-direction: column; gap: 12px; }
 
   h2 {
     font-family: var(--display);
     font-weight: 600;
-    font-size: 19px;
+    font-size: 22px;
     letter-spacing: -.01em;
     margin: 0;
     text-wrap: balance;
   }
 
-  .hint { margin: 0; color: var(--ink-2); font-size: 14px; max-width: 60ch; }
+  .hint { margin: 0; color: var(--ink-2); font-size: 14.5px; max-width: 60ch; }
 
   .eyebrow {
     font-family: var(--mono);
     font-size: 11px;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: .1em;
-    color: var(--ink-3);
+    letter-spacing: .09em;
+    color: var(--grape);
     margin: 0;
   }
 
-  .cal { display: flex; flex-direction: column; gap: 4px; }
+  /* ---- calendar ---- */
+  .cal { display: flex; flex-direction: column; gap: 5px; }
 
   .dow {
     display: grid;
     grid-template-columns: repeat(7, minmax(0, 1fr));
-    gap: 4px;
+    gap: 5px;
     font-family: var(--mono);
     font-size: 10px;
-    letter-spacing: .06em;
+    font-weight: 700;
+    letter-spacing: .04em;
     text-transform: uppercase;
     color: var(--ink-3);
     text-align: center;
   }
 
   .monthrow {
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: .09em;
-    text-transform: uppercase;
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: .02em;
     color: var(--ink-2);
-    padding-top: 8px;
-    border-top: 1px solid var(--line);
-    margin-top: 4px;
+    padding-top: 9px;
+    margin-top: 3px;
+    border-top: 2px dotted var(--line);
   }
 
-  .week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+  .week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 5px; }
 
   .day {
     appearance: none;
     font: inherit;
     font-family: var(--mono);
     font-size: 14px;
+    font-weight: 700;
     font-variant-numeric: tabular-nums;
     aspect-ratio: 1;
     max-width: 100%;
     min-width: 0;
-    border: 1px solid var(--line);
+    border: 2px solid var(--line);
     background: var(--surface);
     color: var(--ink);
-    border-radius: 5px;
+    border-radius: 12px;
     cursor: pointer;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 2px;
+    gap: 3px;
     padding: 0;
-    transition: background-color .12s, border-color .12s;
+    transition: transform .1s, background-color .12s, border-color .12s;
   }
 
-  .day:hover:not(:disabled) { border-color: var(--line-2); }
-  .day.weekend:not(:disabled) { background: var(--accent-soft); border-color: var(--accent-soft); }
+  .day:hover:not(:disabled) { transform: translateY(-1px); border-color: var(--grape); }
+  .day.weekend:not(:disabled) { background: var(--mint-soft); border-color: var(--mint-soft); }
 
-  .day .dot { width: 4px; height: 4px; border-radius: 999px; background: transparent; }
-  .day.some .dot { background: var(--warn); }
-  .day.some { background: var(--warn-soft); border-color: var(--warn-soft); }
+  .day .dot { width: 5px; height: 5px; border-radius: 999px; background: transparent; }
+  .day.some { background: var(--sun-soft); border-color: var(--sun); }
+  .day.some .dot { background: var(--sun); }
 
   .day.all {
-    background: var(--bad-soft);
-    border-color: var(--bad);
-    color: var(--bad);
+    background: var(--coral-soft);
+    border-color: var(--coral);
+    color: var(--coral);
     text-decoration: line-through;
-    text-decoration-thickness: 1px;
+    text-decoration-thickness: 2px;
   }
 
-  .day:disabled { color: var(--ink-3); opacity: .38; cursor: default; background: transparent; border-color: transparent; }
-  .day.today:not(:disabled) { font-weight: 600; }
-  .day.sel:not(:disabled) { box-shadow: inset 0 0 0 2px var(--accent); border-color: var(--accent); }
+  .day:disabled { color: var(--ink-3); opacity: .35; cursor: default; background: transparent; border-color: transparent; }
+  .day.sel:not(:disabled) { border-color: var(--grape); box-shadow: 0 0 0 3px var(--grape-soft); }
 
-  .legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13px; color: var(--ink-2); }
+  .legend { display: flex; flex-wrap: wrap; gap: 7px 14px; font-size: 13.5px; color: var(--ink-2); }
   .legend span { display: flex; align-items: center; gap: 6px; }
-  .swatch { width: 12px; height: 12px; border-radius: 3px; border: 1px solid var(--line); flex: none; }
-  .swatch.free { background: var(--accent-soft); border-color: var(--accent-soft); }
-  .swatch.some { background: var(--warn-soft); border-color: var(--warn); }
-  .swatch.busy { background: var(--bad-soft); border-color: var(--bad); }
+  .swatch { width: 13px; height: 13px; border-radius: 4px; border: 2px solid var(--line); flex: none; }
+  .swatch.free { background: var(--mint-soft); border-color: var(--mint); }
+  .swatch.some { background: var(--sun-soft); border-color: var(--sun); }
+  .swatch.busy { background: var(--coral-soft); border-color: var(--coral); }
 
-  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  /* ---- hour chips ---- */
+  .chips { display: flex; flex-wrap: wrap; gap: 7px; }
 
   button.chip {
     appearance: none;
     font: inherit;
     font-family: var(--mono);
     font-size: 13px;
+    font-weight: 700;
     font-variant-numeric: tabular-nums;
-    border: 1px solid var(--line-2);
+    border: 2px solid var(--line-2);
     background: var(--surface);
     color: var(--ink);
     border-radius: 999px;
-    padding: 7px 12px;
+    padding: 8px 14px;
     cursor: pointer;
     white-space: nowrap;
   }
-  button.chip:hover { border-color: var(--accent); }
+  button.chip:hover { border-color: var(--grape); color: var(--grape); }
   button.chip[aria-pressed="true"] {
-    background: var(--bad-soft);
-    border-color: var(--bad);
-    color: var(--bad);
+    background: var(--coral-soft);
+    border-color: var(--coral);
+    color: var(--coral);
     text-decoration: line-through;
-    text-decoration-thickness: 1px;
+    text-decoration-thickness: 2px;
   }
 
-  label.field { display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 500; }
+  /* ---- controls ---- */
+  label.field { display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 700; }
 
-  input[type="text"], input[type="date"], input[type="number"], input[type="file"], select, textarea {
+  input[type="text"], input[type="date"], input[type="number"], select, textarea {
     font: inherit;
-    font-size: 15px;
+    font-size: 15.5px;
     color: var(--ink);
     background: var(--surface);
-    border: 1px solid var(--line-2);
-    border-radius: 6px;
-    padding: 9px 11px;
+    border: 2px solid var(--line-2);
+    border-radius: 10px;
+    padding: 10px 12px;
     width: 100%;
     max-width: 100%;
   }
 
-  textarea { font-family: var(--mono); font-size: 14px; line-height: 1.7; resize: vertical; }
+  textarea { font-family: var(--mono); font-size: 14px; line-height: 1.8; resize: vertical; }
 
   .row { display: flex; gap: 10px; flex-wrap: wrap; }
   .row > * { flex: 1 1 140px; min-width: 0; }
@@ -369,206 +389,164 @@
   button.act {
     appearance: none;
     font: inherit;
+    font-family: var(--display);
     font-weight: 600;
-    border-radius: 6px;
-    padding: 10px 14px;
+    font-size: 16px;
+    border-radius: 999px;
+    padding: 11px 18px;
     cursor: pointer;
-    border: 1px solid var(--accent);
-    background: var(--accent);
-    color: var(--on-accent);
+    border: 2px solid var(--grape);
+    background: var(--grape);
+    color: var(--on-grape);
     white-space: nowrap;
   }
-  button.act:hover { filter: brightness(1.07); }
+  button.act:hover { filter: brightness(1.08); }
   button.act.ghost { background: transparent; color: var(--ink); border-color: var(--line-2); }
-  button.act.ghost:hover { background: var(--surface-2); filter: none; }
+  button.act.ghost:hover { background: var(--surface-2); border-color: var(--grape); color: var(--grape); filter: none; }
 
-  :where(button, input, select, textarea, a):focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  :where(button, input, select, textarea, a):focus-visible { outline: 3px solid var(--sky); outline-offset: 2px; }
 
+  /* ---- slab ---- */
   .slab {
     background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 8px;
+    border: 2px solid var(--line);
+    border-radius: 14px;
     padding: 14px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 11px;
     box-shadow: var(--shadow);
   }
 
   .codeout {
     font-family: var(--mono);
-    font-size: 14px;
+    font-size: 13.5px;
+    font-weight: 700;
     letter-spacing: .02em;
     word-break: break-all;
-    color: var(--accent-ink);
-    background: var(--accent-soft);
+    color: var(--grape);
+    background: var(--grape-soft);
     border: 0;
-    border-radius: 6px;
-    padding: 12px;
+    border-radius: 10px;
+    padding: 13px;
     text-align: center;
     width: 100%;
   }
 
-  .linkout { font-family: var(--mono); font-size: 12px; word-break: break-all; margin: 0; }
+  .linkout { font-family: var(--mono); font-size: 11.5px; word-break: break-all; margin: 0; color: var(--ink-2); }
 
-  .msg { font-size: 13px; color: var(--ink-2); min-height: 1.2em; margin: 0; }
-  .msg.err { color: var(--bad); }
-  .msg.ok { color: var(--accent-ink); }
+  .msg { font-size: 13.5px; color: var(--ink-2); min-height: 1.2em; margin: 0; }
+  .msg.err { color: var(--coral); font-weight: 600; }
+  .msg.ok { color: var(--mint); font-weight: 600; }
 
-  ol.dates { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  /* ---- ranked rows ---- */
+  ol.dates { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 9px; }
 
   .date {
     display: grid;
-    grid-template-columns: 4px 1fr auto;
+    grid-template-columns: 6px 1fr auto;
     gap: 0 12px;
     align-items: center;
     background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 7px;
+    border: 2px solid var(--line);
+    border-radius: 14px;
     overflow: hidden;
   }
 
   .date .stripe { align-self: stretch; background: var(--line-2); }
-  .date.clear .stripe { background: var(--accent); }
-  .date.near .stripe { background: var(--warn); }
-  .date.hard .stripe { background: var(--bad); }
-  .date.picked { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+  .date.clear .stripe { background: var(--mint); }
+  .date.near .stripe { background: var(--sun); }
+  .date.hard .stripe { background: var(--coral); }
+  .date.picked { border-color: var(--grape); box-shadow: 0 0 0 3px var(--grape-soft); }
 
   .date .who { padding: 11px 0; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
   .date .when {
     font-family: var(--mono);
     font-size: 14.5px;
+    font-weight: 700;
     font-variant-numeric: tabular-nums;
-    font-weight: 500;
   }
-  .date .out { font-size: 13px; color: var(--ink-2); }
-  .date .out em { font-style: normal; color: var(--bad); }
+  .date .out { font-size: 13.5px; color: var(--ink-2); }
+  .date .out em { font-style: normal; color: var(--coral); font-weight: 700; }
 
   .date .end { display: flex; align-items: center; gap: 8px; margin-right: 11px; flex: none; }
 
   .tally {
     font-family: var(--mono);
     font-size: 12.5px;
+    font-weight: 700;
     font-variant-numeric: tabular-nums;
-    font-weight: 500;
-    padding: 4px 8px;
+    padding: 4px 9px;
     border-radius: 999px;
     background: var(--surface-2);
     color: var(--ink-2);
     white-space: nowrap;
   }
-  .date.clear .tally { background: var(--accent-soft); color: var(--accent-ink); }
-  .date.near .tally { background: var(--warn-soft); color: var(--warn); }
-  .date.hard .tally { background: var(--bad-soft); color: var(--bad); }
+  .date.clear .tally { background: var(--mint-soft); color: var(--mint); }
+  .date.near .tally { background: var(--sun-soft); color: var(--sun); }
+  .date.hard .tally { background: var(--coral-soft); color: var(--coral); }
 
   button.pick {
     appearance: none;
     font: inherit;
-    font-size: 13px;
+    font-family: var(--display);
+    font-size: 13.5px;
     font-weight: 600;
-    border: 1px solid var(--line-2);
+    border: 2px solid var(--line-2);
     background: var(--surface);
     color: var(--ink);
-    border-radius: 6px;
-    padding: 6px 10px;
+    border-radius: 999px;
+    padding: 6px 12px;
     cursor: pointer;
     white-space: nowrap;
   }
-  button.pick:hover { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-ink); }
-  button.pick[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+  button.pick:hover { background: var(--grape-soft); border-color: var(--grape); color: var(--grape); }
+  button.pick[aria-pressed="true"] { background: var(--grape); border-color: var(--grape); color: var(--on-grape); }
 
-  ul.people { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+  /* ---- people ---- */
+  ul.people { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 7px; }
 
   ul.people li {
-    font-size: 13px;
-    padding: 4px 10px;
+    font-size: 13.5px;
+    font-weight: 600;
+    padding: 5px 11px;
     border-radius: 999px;
-    border: 1px solid var(--line);
+    border: 2px solid var(--line);
     background: var(--surface);
-    color: var(--ink-2);
+    color: var(--ink-3);
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 7px;
   }
-  ul.people li.in { border-color: var(--accent-soft); background: var(--accent-soft); color: var(--accent-ink); font-weight: 500; }
+  ul.people li .pip { width: 8px; height: 8px; border-radius: 999px; flex: none; opacity: .35; }
+  ul.people li.in { color: var(--ink); }
+  ul.people li.in .pip { opacity: 1; }
   ul.people li .x {
     appearance: none; border: 0; background: none; padding: 0; margin: 0;
-    font: inherit; color: inherit; opacity: .55; cursor: pointer; line-height: 1;
+    font: inherit; font-size: 15px; color: var(--ink-3); cursor: pointer; line-height: 1;
   }
-  ul.people li .x:hover { opacity: 1; }
+  ul.people li .x:hover { color: var(--coral); }
 
   .empty {
-    border: 1px dashed var(--line-2);
-    border-radius: 7px;
+    border: 2px dashed var(--line-2);
+    border-radius: 14px;
     padding: 18px 14px;
     color: var(--ink-2);
-    font-size: 14px;
+    font-size: 14.5px;
     text-align: center;
   }
 
-  .shots { display: grid; grid-template-columns: repeat(auto-fill, minmax(94px, 1fr)); gap: 6px; }
-
-  .shot {
-    position: relative;
-    aspect-ratio: 1;
-    max-width: 100%;
-    border-radius: 6px;
-    overflow: hidden;
-    background: var(--surface-2);
-    border: 1px solid var(--line);
-  }
-  .shot img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .shot button.open {
-    position: absolute; inset: 0;
-    appearance: none; border: 0; background: none; padding: 0; margin: 0; cursor: zoom-in;
-  }
-  .shot button.del {
-    position: absolute; top: 4px; right: 4px;
-    appearance: none; border: 0;
-    background: var(--scrim);
-    color: #FFF;
-    width: 24px; height: 24px; border-radius: 999px;
-    font: inherit; font-size: 15px; line-height: 1; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .shot button.del:hover { background: var(--bad); }
-
-  .addshots {
-    border: 1px dashed var(--line-2);
-    border-radius: 8px;
-    padding: 14px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    background: var(--surface);
-  }
-
-  .lightbox {
-    position: fixed; inset: 0;
-    background: var(--scrim);
-    display: flex; align-items: center; justify-content: center;
-    padding: 20px; z-index: 50;
-  }
-  .lightbox img { max-width: 100%; max-height: 100%; border-radius: 6px; }
-  .lightbox button {
-    position: absolute; top: 14px; right: 14px;
-    appearance: none; border: 0;
-    background: rgba(255, 255, 255, .16);
-    color: #FFF;
-    width: 38px; height: 38px; border-radius: 999px;
-    font: inherit; font-size: 20px; cursor: pointer;
-  }
-
   footer {
-    border-top: 1px solid var(--line);
+    border-top: 2px dotted var(--line);
     padding-top: 16px;
     color: var(--ink-3);
-    font-size: 13px;
+    font-size: 13.5px;
     display: flex;
     flex-direction: column;
     gap: 6px;
   }
   footer p { margin: 0; }
+  footer strong { color: var(--ink-2); }
 
   @media (prefers-reduced-motion: reduce) {
     * { transition: none !important; animation: none !important; }
@@ -578,7 +556,7 @@
 <div class="wrap">
   <header class="mast">
     <div class="toprow">
-      <h1 class="wordmark">HEY HEY<span class="count" id="paxcount">10 pax</span></h1>
+      <h1 class="wordmark">HEY <span class="two">HEY</span><span class="count" id="paxcount">10 pax</span></h1>
       <button class="icon" id="themebtn" type="button" aria-label="Colour theme"></button>
     </div>
     <p class="tagline">mark where you cant make it and copy the code and paste in group chat ah</p>
@@ -586,30 +564,29 @@
   </header>
 
   <div class="notice" id="example-notice" hidden>
-    <p><strong>This is an example group.</strong> Open <em>Roster</em> to put in your own names and dates &mdash; that replaces the example and gives you a link to share.</p>
+    <p><strong>This one is just an example.</strong> Go to Roster, put in your own names and dates, then send the link out.</p>
   </div>
 
-  <button class="confirmed" id="confirmed" type="button" hidden>
+  <div class="locked" id="locked" hidden>
+    <span class="flag">IT&rsquo;S ON</span>
     <span class="body">
-      <span class="lede" id="confirmed-when"></span>
-      <span class="sub" id="confirmed-sub"></span>
+      <span class="lede" id="locked-when"></span>
+      <span class="sub" id="locked-sub"></span>
     </span>
-    <span class="arrow" aria-hidden="true">&rarr;</span>
-  </button>
+  </div>
 
   <div class="tabs" role="tablist" aria-label="Sections">
     <button role="tab" id="tab-mine" aria-controls="panel-mine" aria-selected="true">Your days</button>
-    <button role="tab" id="tab-album" aria-controls="panel-album" aria-selected="false" hidden>Photos</button>
     <button role="tab" id="tab-group" aria-controls="panel-group" aria-selected="false">Group view</button>
     <button role="tab" id="tab-roster" aria-controls="panel-roster" aria-selected="false">Roster</button>
   </div>
 
   <div class="panel" id="panel-mine" role="tabpanel" aria-labelledby="tab-mine">
     <section>
-      <h2>Mark when you <em>can&rsquo;t</em> make it</h2>
-      <p class="hint">Weekday evenings run 6&ndash;10pm, weekends 10am&ndash;10pm. Everything starts as free. Tap a day to open its hours, then cross out what doesn&rsquo;t work.</p>
+      <h2>Cross out what you cannot do</h2>
+      <p class="hint">Weeknights are 6&ndash;10pm, weekends 10am&ndash;10pm. You start off free for everything. Tap any day to see its hours.</p>
       <label class="field" for="who">
-        You are
+        Who are you?
         <select id="who"></select>
       </label>
     </section>
@@ -618,8 +595,8 @@
       <div class="cal" id="cal"></div>
       <div class="legend">
         <span><i class="swatch free"></i> Weekend</span>
-        <span><i class="swatch some"></i> Some hours out</span>
-        <span><i class="swatch busy"></i> Whole day out</span>
+        <span><i class="swatch some"></i> Some hours gone</span>
+        <span><i class="swatch busy"></i> Whole day gone</span>
       </div>
     </section>
 
@@ -628,57 +605,39 @@
       <div class="slab">
         <div class="chips" id="slots"></div>
         <div class="row">
-          <button class="act ghost" id="allday">Out all day</button>
-          <button class="act ghost" id="freeday">Free all day</button>
+          <button class="act ghost" id="allday">Cannot, whole day</button>
+          <button class="act ghost" id="freeday">Actually I&rsquo;m free</button>
         </div>
-        <p class="msg" id="slot-msg">Crossed-out hours are the ones you can&rsquo;t do.</p>
+        <p class="msg" id="slot-msg">Crossed out means you cannot make it.</p>
       </div>
     </section>
 
     <section>
-      <p class="eyebrow">Step 2 &mdash; done marking?</p>
+      <p class="eyebrow">Finished marking?</p>
       <div class="slab">
         <div class="row">
-          <button class="act" id="finish">Finish</button>
-          <button class="act ghost" id="clearmine">Clear everything</button>
+          <button class="act" id="finish">Done!</button>
+          <button class="act ghost" id="clearmine">Start over</button>
         </div>
-        <p class="msg" id="finish-msg">Finishing puts your hours straight into Group view, so it shows you&rsquo;ve answered.</p>
+        <p class="msg" id="finish-msg">Hit Done and your hours turn up in Group view.</p>
       </div>
     </section>
 
     <section>
-      <p class="eyebrow">On your own phone? Send this too</p>
+      <p class="eyebrow">Answering on your own phone?</p>
       <div class="slab">
-        <input class="codeout" id="mycode" readonly aria-label="Your availability code">
+        <input class="codeout" id="mycode" readonly aria-label="Your code">
         <div class="row">
-          <button class="act ghost" id="copycode">Copy code</button>
+          <button class="act ghost" id="copycode">Copy my code</button>
         </div>
-        <p class="msg" id="mycode-msg">Group view only fills in on the device it was answered on. Paste this code in the chat so the organiser can add your hours on theirs.</p>
+        <p class="msg" id="mycode-msg">Group view only fills up on the phone you answered on. Copy this and drop it in the chat so whoever is organising can add you.</p>
       </div>
-    </section>
-  </div>
-
-  <div class="panel" id="panel-album" role="tabpanel" aria-labelledby="tab-album" hidden>
-    <section>
-      <h2 id="album-title">Photos</h2>
-      <div class="notice">
-        <p><strong>These photos stay on this device.</strong> Nothing is uploaded and nobody else can see them from here &mdash; a shared album needs the hosted version. For now this is your own copy of the night.</p>
-      </div>
-      <div class="addshots">
-        <label class="field" for="pickfile">
-          Add photos
-          <input type="file" id="pickfile" accept="image/*" multiple>
-        </label>
-        <p class="msg" id="album-msg"></p>
-      </div>
-      <div class="shots" id="shots"></div>
-      <div class="empty" id="album-empty">No photos yet. Add a few after the gathering.</div>
     </section>
   </div>
 
   <div class="panel" id="panel-group" role="tabpanel" aria-labelledby="tab-group" hidden>
     <section>
-      <h2>Best times for the table</h2>
+      <h2>When can everybody make it</h2>
       <p class="msg ok" id="group-msg"></p>
       <p class="hint" id="group-hint"></p>
       <ol class="dates" id="ranked"></ol>
@@ -686,21 +645,21 @@
     </section>
 
     <section>
-      <p class="eyebrow" id="replied-eyebrow">Who&rsquo;s replied</p>
+      <p class="eyebrow" id="replied-eyebrow">Who answered</p>
       <ul class="people" id="replied"></ul>
       <p class="hint" id="waiting"></p>
     </section>
 
     <section>
-      <p class="eyebrow">Add a code from the chat</p>
+      <p class="eyebrow">Got a code from the chat?</p>
       <div class="slab">
         <label class="field" for="paste">
-          Paste a code
+          Paste it here
           <input type="text" id="paste" placeholder="PAX-3-K7X2M9-B" spellcheck="false" autocomplete="off">
         </label>
         <div class="row">
-          <button class="act" id="addcode">Add code</button>
-          <button class="act ghost" id="resetcodes">Remove all codes</button>
+          <button class="act" id="addcode">Add it</button>
+          <button class="act ghost" id="resetcodes">Clear all answers</button>
         </div>
         <p class="msg" id="paste-msg"></p>
       </div>
@@ -709,10 +668,10 @@
 
   <div class="panel" id="panel-roster" role="tabpanel" aria-labelledby="tab-roster" hidden>
     <section>
-      <h2>Who&rsquo;s coming, and when we&rsquo;re looking</h2>
-      <p class="hint">Changing the names or dates makes a new group and clears the answers already collected, so settle this before you send the link out.</p>
+      <h2>Your people, your dates</h2>
+      <p class="hint">Change the names or the dates and it becomes a new group, so answers you already collected get cleared. Sort this out before you send the link.</p>
       <label class="field" for="gname">
-        Group name
+        What do you call this group?
         <input type="text" id="gname" placeholder="Thursday Club" autocomplete="off">
       </label>
       <label class="field" for="names">
@@ -725,38 +684,33 @@
           <input type="date" id="start">
         </label>
         <label class="field" for="weeks">
-          Weeks to look at
+          How many weeks?
           <input type="number" id="weeks" min="1" max="8" step="1">
         </label>
       </div>
       <div class="row">
-        <button class="act" id="save">Save roster</button>
-        <button class="act ghost" id="loadexample">Load the example again</button>
+        <button class="act" id="save">Save</button>
+        <button class="act ghost" id="loadexample">Show the example again</button>
       </div>
       <p class="msg" id="save-msg"></p>
     </section>
 
     <section>
-      <p class="eyebrow">Share this link</p>
+      <p class="eyebrow">Send them this link</p>
       <div class="slab">
         <p class="linkout" id="sharelink"></p>
         <div class="row">
           <button class="act" id="copylink">Copy link</button>
         </div>
-        <p class="msg" id="link-msg">The roster and dates travel inside the link &mdash; nobody needs an account to open it.</p>
+        <p class="msg" id="link-msg">The names and dates ride inside the link, so nobody has to sign up for anything.</p>
       </div>
     </section>
   </div>
 
   <footer>
-    <p><strong>Nothing leaves your devices.</strong> The roster lives in the link; your hours, the codes you collect and any photos you add stay in this browser only.</p>
+    <p><strong>Nothing leaves your phone.</strong> The names and dates live in the link. Your hours and the codes you collect stay in this browser.</p>
     <p id="hosthint"></p>
   </footer>
-</div>
-
-<div class="lightbox" id="lightbox" hidden>
-  <img id="lightbox-img" alt="">
-  <button type="button" id="lightbox-close" aria-label="Close photo">&times;</button>
 </div>
 
 <script>
@@ -769,7 +723,11 @@
   var EXAMPLE_NAMES = ["Priscilla", "Wei Ming", "Sarah", "Daniel", "Hui Ling",
     "Marcus", "Jia Yi", "Ethan", "Rachel", "Kenji"];
 
-  // Meeting windows: weekday evenings 6-10pm, weekends 10am-10pm.
+  // One hue per person, so the roster reads at a glance.
+  var HUES = ["#6D4AFF", "#0B9A70", "#E8A317", "#D93E51", "#1B8CCC",
+    "#D4479A", "#6FA82B", "#E9701E", "#00A2B8", "#8B5CF6"];
+
+  // Weeknights 6-10pm, weekends 10am-10pm.
   var WEEKDAY_FROM = 18, WEEKEND_FROM = 10, UNTIL = 22;
 
   var $ = function (id) { return document.getElementById(id); };
@@ -803,7 +761,7 @@
     return new Date(n.getFullYear(), n.getMonth(), n.getDate());
   }
 
-  /* ---------- time slots ---------- */
+  /* ---------- hours ---------- */
 
   function isWeekend(dayIdx) { return (dayIdx % 7) >= 5; }
 
@@ -829,8 +787,7 @@
   function bitFor(dayIdx, slotIdx) { return offsets[dayIdx] + slotIdx; }
 
   function hourText(h) {
-    var ampm = h < 12 ? "am" : "pm";
-    return (h % 12 === 0 ? 12 : h % 12) + ampm;
+    return (h % 12 === 0 ? 12 : h % 12) + (h < 12 ? "am" : "pm");
   }
 
   function slotText(h) {
@@ -915,12 +872,12 @@
   function decodeCode(raw, nMembers) {
     var t = String(raw || "").toUpperCase().replace(/\s+/g, "").replace(/^PAX-/, "");
     var parts = t.split("-");
-    if (parts.length !== 3) throw new Error("That code is missing a part. It should look like PAX-3-K7X2M9-B.");
+    if (parts.length !== 3) throw new Error("That code is missing a bit. It should look like PAX-3-K7X2M9-B.");
     var body = parts[0] + "-" + parts[1];
-    if (checksum(body) !== parts[2]) throw new Error("That code looks mistyped — check for a missing character and paste it again.");
+    if (checksum(body) !== parts[2]) throw new Error("Something got lost in the copy-paste. Grab the code again and try once more.");
     var idx = parseInt(parts[0], 36);
-    if (isNaN(idx) || idx < 0 || idx >= nMembers) throw new Error("That code is for someone who isn't on this roster. It may be from an older version of the link.");
-    if (!/^[0-9A-Z]+$/.test(parts[1])) throw new Error("That code has characters that don't belong in it.");
+    if (isNaN(idx) || idx < 0 || idx >= nMembers) throw new Error("This code belongs to somebody who is not on the list. Maybe it came from an older link.");
+    if (!/^[0-9A-Z]+$/.test(parts[1])) throw new Error("There are characters in there that do not belong in a code.");
     var mask = 0n;
     for (var i = 0; i < parts[1].length; i++) mask = mask * 36n + BigInt(parseInt(parts[1][i], 36));
     return { idx: idx, mask: mask };
@@ -931,7 +888,7 @@
   /* ---------- storage ---------- */
 
   function cfgKey(c) {
-    // Excludes pick, so confirming a time doesn't discard collected answers.
+    // Excludes pick, so locking a time in does not throw away collected answers.
     var s = c.names.join("|") + "@" + c.start + "/" + c.weeks;
     var h = 0;
     for (var i = 0; i < s.length; i++) h = (h * 33 + s.charCodeAt(i)) | 0;
@@ -949,88 +906,9 @@
     try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) { /* storage blocked */ }
   }
 
-  /* ---------- photos (IndexedDB, this device only) ---------- */
-
-  function openPhotos() {
-    return new Promise(function (res, rej) {
-      if (!window.indexedDB) { rej(new Error("no indexeddb")); return; }
-      var r = indexedDB.open("10pax-photos", 1);
-      r.onupgradeneeded = function () {
-        var d = r.result;
-        if (!d.objectStoreNames.contains("photos")) {
-          d.createObjectStore("photos", { keyPath: "id", autoIncrement: true })
-            .createIndex("album", "album");
-        }
-      };
-      r.onsuccess = function () { res(r.result); };
-      r.onerror = function () { rej(r.error || new Error("open failed")); };
-    });
-  }
-
-  function photoStore(mode) {
-    return openPhotos().then(function (d) {
-      return d.transaction("photos", mode).objectStore("photos");
-    });
-  }
-
-  function albumId() {
-    return cfgKey(cfg) + ":" + (cfg.pick ? cfg.pick.day + "@" + cfg.pick.hour : "none");
-  }
-
-  function listPhotos() {
-    return photoStore("readonly").then(function (st) {
-      return new Promise(function (res, rej) {
-        var r = st.index("album").getAll(albumId());
-        r.onsuccess = function () { res(r.result || []); };
-        r.onerror = function () { rej(r.error); };
-      });
-    });
-  }
-
-  function addPhoto(blob) {
-    return photoStore("readwrite").then(function (st) {
-      return new Promise(function (res, rej) {
-        var r = st.add({ album: albumId(), blob: blob, at: Date.now() });
-        r.onsuccess = function () { res(r.result); };
-        r.onerror = function () { rej(r.error); };
-      });
-    });
-  }
-
-  function removePhoto(id) {
-    return photoStore("readwrite").then(function (st) {
-      return new Promise(function (res, rej) {
-        var r = st.delete(id);
-        r.onsuccess = function () { res(); };
-        r.onerror = function () { rej(r.error); };
-      });
-    });
-  }
-
-  function shrink(file) {
-    return new Promise(function (res, rej) {
-      var url = URL.createObjectURL(file), img = new Image();
-      img.onload = function () {
-        var scale = Math.min(1, 1600 / Math.max(img.width, img.height));
-        var w = Math.max(1, Math.round(img.width * scale));
-        var h = Math.max(1, Math.round(img.height * scale));
-        var c = document.createElement("canvas");
-        c.width = w; c.height = h;
-        c.getContext("2d").drawImage(img, 0, 0, w, h);
-        URL.revokeObjectURL(url);
-        c.toBlob(function (b) {
-          if (b) res(b); else rej(new Error("convert failed"));
-        }, "image/jpeg", 0.82);
-      };
-      img.onerror = function () { URL.revokeObjectURL(url); rej(new Error("not an image")); };
-      img.src = url;
-    });
-  }
-
   /* ---------- state ---------- */
 
   var cfg, isExample, store, me, busy, responses, tab = "mine", selDay = 0;
-  var shotUrls = [];
 
   function nDays() { return cfg.weeks * 7; }
 
@@ -1065,7 +943,7 @@
     save(store, { me: me, busy: Array.from(busy), responses: out });
   }
 
-  // Plausible example answers so the page opens showing what it actually does.
+  // Example answers, so the page opens showing what it actually does.
   function seedExample() {
     var wholeDaysOut = { 1: [2, 9, 16], 2: [0, 1, 7, 14, 21], 4: [3, 11, 18, 25], 6: [9, 23], 7: [2, 13, 20] };
     var lateOnly = [2, 6];
@@ -1125,9 +1003,9 @@
 
   /* ---------- theme ---------- */
 
-  var SUN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M18.7 5.3l-1.4 1.4M6.7 17.3l-1.4 1.4"/></svg>';
-  var MOON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.8 6.8 0 0 0 10.5 10.5z"/></svg>';
-  var AUTO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor" stroke="none"/></svg>';
+  var SUN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M18.7 5.3l-1.4 1.4M6.7 17.3l-1.4 1.4"/></svg>';
+  var MOON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.8 6.8 0 0 0 10.5 10.5z"/></svg>';
+  var AUTO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor" stroke="none"/></svg>';
 
   var theme = "system";
 
@@ -1139,7 +1017,7 @@
     b.innerHTML = (theme === "light" ? SUN + "<span>Light</span>"
       : theme === "dark" ? MOON + "<span>Dark</span>" : AUTO + "<span>Auto</span>");
     b.classList.toggle("on", theme !== "system");
-    b.title = "Theme: " + theme + " — tap to change";
+    b.title = "Colours: " + theme + " — tap to switch";
   }
 
   /* ---------- rendering ---------- */
@@ -1155,21 +1033,19 @@
     $("groupline").textContent = bits.join("  ·  ");
   }
 
-  function renderConfirmed() {
-    var btn = $("confirmed");
-    if (!cfg.pick) { btn.hidden = true; return; }
-    btn.hidden = false;
-    $("confirmed-when").textContent = "It's on — " + whenLabel(cfg.pick, true);
+  function renderLocked() {
+    var box = $("locked");
+    if (!cfg.pick) { box.hidden = true; return; }
+    box.hidden = false;
+    $("locked-when").textContent = whenLabel(cfg.pick, true);
     var replies = Object.keys(responses).map(Number);
     var bit = bitFor(cfg.pick.day, hoursFor(cfg.pick.day).indexOf(cfg.pick.hour));
     var out = replies.filter(function (i) { return maskHas(responses[i], bit); }).length;
-    $("confirmed-sub").textContent = (cfg.names.length - out) + " of " + cfg.names.length + " pax · tap for the photos";
+    $("locked-sub").textContent = (cfg.names.length - out) + " of " + cfg.names.length + " can make it";
   }
 
   function renderTabs() {
-    $("tab-album").hidden = !cfg.pick;
-    if ($("tab-" + tab).hidden) tab = "mine";
-    ["mine", "album", "group", "roster"].forEach(function (k) {
+    ["mine", "group", "roster"].forEach(function (k) {
       var on = k === tab;
       $("tab-" + k).setAttribute("aria-selected", on ? "true" : "false");
       $("panel-" + k).hidden = !on;
@@ -1179,7 +1055,6 @@
   function selectTab(which) {
     tab = which;
     renderTabs();
-    if (which === "album") renderAlbum();
   }
 
   function renderWho() {
@@ -1240,11 +1115,10 @@
         var label = DOW[i] + " " + date.getDate() + " " + MONTHS[date.getMonth()];
         if (date < t) {
           b.disabled = true;
-          b.setAttribute("aria-label", label + " (past)");
+          b.setAttribute("aria-label", label + " (already past)");
         } else {
-          if (date.getTime() === t.getTime()) b.classList.add("today");
           b.setAttribute("aria-label", label + " — " +
-            (st === "all" ? "whole day out" : st === "some" ? "some hours out" : "free"));
+            (st === "all" ? "whole day gone" : st === "some" ? "some hours gone" : "free"));
         }
         row.appendChild(b);
       }
@@ -1256,7 +1130,7 @@
     var hours = hoursFor(selDay);
     $("slot-eyebrow").textContent = dayLabel(selDay, true) + " · " +
       hourText(hours[0]) + "–" + hourText(UNTIL) +
-      (isWeekend(selDay) ? " (weekend)" : " (weekday evening)");
+      (isWeekend(selDay) ? " (weekend)" : " (weeknight)");
 
     var box = $("slots");
     box.innerHTML = "";
@@ -1268,14 +1142,14 @@
       c.textContent = slotText(h);
       c.dataset.bit = String(bit);
       c.setAttribute("aria-pressed", busy.has(bit) ? "true" : "false");
-      c.setAttribute("aria-label", slotText(h) + (busy.has(bit) ? " — can't make it" : " — free"));
+      c.setAttribute("aria-label", slotText(h) + (busy.has(bit) ? " — cannot make it" : " — free"));
       box.appendChild(c);
     });
   }
 
   function renderMyCode() { $("mycode").value = encodeCode(me, busy); }
 
-  // The hour a day is most likely to work: fewest people out, then nearest 7pm.
+  // The hour a day is most likely to work: fewest people out, then closest to 7pm.
   function bestSlot(dayIdx, replies) {
     var hours = hoursFor(dayIdx), best = null;
     hours.forEach(function (h, i) {
@@ -1296,8 +1170,8 @@
     var total = cfg.names.length, t = today(), start = parseYmd(cfg.start);
 
     $("group-hint").textContent = !replies.length
-      ? "Nobody has answered yet. As people finish, the hours that suit everyone rise to the top."
-      : replies.length + " of " + total + " have answered. Each row is the best hour on that day. Press Confirm to lock one in and open the photo album.";
+      ? "Nobody has answered yet. As people hit Done, the good hours float to the top."
+      : replies.length + " out of " + total + " have answered. Each row is the best hour that day. Hit Lock it in once you have picked one.";
 
     var rows = [];
     for (var d = 0; d < nDays(); d++) {
@@ -1319,7 +1193,7 @@
     if (!shown.length) {
       var e = document.createElement("li");
       e.className = "empty";
-      e.textContent = "Every day in this window is already in the past. Move the start date in Roster.";
+      e.textContent = "Every day here has already gone past. Push the start date forward in Roster.";
       list.appendChild(e);
     }
 
@@ -1340,12 +1214,12 @@
       var out = document.createElement("div");
       out.className = "out";
       if (!replies.length) {
-        out.textContent = "Waiting on everybody";
+        out.textContent = "Still waiting on everybody";
       } else if (!r.out.length) {
-        out.textContent = r.unknown ? "Nobody who answered is out · " + r.unknown + " still to go" : "Everyone is free";
+        out.textContent = r.unknown ? "Everyone who answered can make it · " + r.unknown + " to go" : "Everybody can make it";
       } else {
         var em = document.createElement("em");
-        em.textContent = "Out: ";
+        em.textContent = "Cannot make it: ";
         out.appendChild(em);
         out.appendChild(document.createTextNode(r.out.join(", ")));
       }
@@ -1363,7 +1237,7 @@
       pk.dataset.day = String(r.day);
       pk.dataset.hour = String(r.hour);
       pk.setAttribute("aria-pressed", isPick ? "true" : "false");
-      pk.textContent = isPick ? "Confirmed" : "Confirm";
+      pk.textContent = isPick ? "Locked in" : "Lock it in";
       end.appendChild(tally);
       end.appendChild(pk);
 
@@ -1373,11 +1247,13 @@
       list.appendChild(li);
     });
 
-    $("replied-eyebrow").textContent = "Who's replied — " + replies.length + " of " + total;
+    $("replied-eyebrow").textContent = "Who answered — " + replies.length + " of " + total;
     var pending = cfg.names.filter(function (n, i) {
       return !Object.prototype.hasOwnProperty.call(responses, i);
     });
-    $("waiting").textContent = pending.length ? "Still to answer: " + pending.join(", ") : "Everyone has answered.";
+    $("waiting").textContent = pending.length
+      ? "Still waiting on: " + pending.join(", ")
+      : "Everybody has answered.";
 
     var ul = $("replied");
     ul.innerHTML = "";
@@ -1385,13 +1261,17 @@
       var li2 = document.createElement("li");
       var inYet = Object.prototype.hasOwnProperty.call(responses, i);
       li2.className = inYet ? "in" : "";
+      var pip = document.createElement("span");
+      pip.className = "pip";
+      pip.style.background = HUES[i % HUES.length];
+      li2.appendChild(pip);
       li2.appendChild(document.createTextNode(n));
       if (inYet) {
         var x = document.createElement("button");
         x.className = "x";
         x.type = "button";
         x.textContent = "×";
-        x.setAttribute("aria-label", "Remove " + n + "'s answer");
+        x.setAttribute("aria-label", "Take out " + n + "'s answer");
         x.dataset.drop = String(i);
         li2.appendChild(x);
       }
@@ -1407,49 +1287,9 @@
     $("sharelink").textContent = location.href.split("#")[0] + "#c=" + encodeCfg(cfg);
   }
 
-  function renderAlbum() {
-    $("album-title").textContent = cfg.pick ? "Photos — " + whenLabel(cfg.pick, true) : "Photos";
-    var grid = $("shots");
-    shotUrls.forEach(URL.revokeObjectURL);
-    shotUrls = [];
-    grid.innerHTML = "";
-
-    listPhotos().then(function (rows) {
-      $("album-empty").hidden = rows.length > 0;
-      rows.sort(function (a, b) { return a.at - b.at; });
-      rows.forEach(function (row) {
-        var url = URL.createObjectURL(row.blob);
-        shotUrls.push(url);
-        var fig = document.createElement("div");
-        fig.className = "shot";
-        var img = document.createElement("img");
-        img.src = url;
-        img.alt = "Photo from " + (cfg.pick ? whenLabel(cfg.pick, true) : "the gathering");
-        var open = document.createElement("button");
-        open.className = "open";
-        open.type = "button";
-        open.dataset.url = url;
-        open.setAttribute("aria-label", "View photo full size");
-        var del = document.createElement("button");
-        del.className = "del";
-        del.type = "button";
-        del.textContent = "×";
-        del.dataset.del = String(row.id);
-        del.setAttribute("aria-label", "Delete this photo");
-        fig.appendChild(img);
-        fig.appendChild(open);
-        fig.appendChild(del);
-        grid.appendChild(fig);
-      });
-    }, function () {
-      $("album-empty").hidden = false;
-      $("album-empty").textContent = "This browser won't let the page store photos, so the album can't work here.";
-    });
-  }
-
   function renderAll() {
     renderMast();
-    renderConfirmed();
+    renderLocked();
     renderTabs();
     renderWho();
     renderCal();
@@ -1457,7 +1297,6 @@
     renderMyCode();
     renderGroup();
     renderRoster();
-    if (tab === "album") renderAlbum();
   }
 
   /* ---------- messages & clipboard ---------- */
@@ -1470,7 +1309,7 @@
 
   function copy(text, msgId, okText) {
     var fail = function () {
-      say(msgId, "Couldn't reach the clipboard — select the text above and copy it by hand.", "err");
+      say(msgId, "The clipboard would not open. Select the text above and copy it by hand.", "err");
     };
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text).then(function () { say(msgId, okText, "ok"); }, fail);
@@ -1489,11 +1328,9 @@
       applyTheme();
     });
 
-    ["mine", "album", "group", "roster"].forEach(function (k) {
+    ["mine", "group", "roster"].forEach(function (k) {
       $("tab-" + k).addEventListener("click", function () { selectTab(k); });
     });
-
-    $("confirmed").addEventListener("click", function () { selectTab("album"); });
 
     $("cal").addEventListener("click", function (e) {
       var b = e.target.closest("button.day");
@@ -1513,7 +1350,7 @@
       persist();
       renderCal();
       renderMyCode();
-      say("slot-msg", "Updated " + dayLabel(selDay, true) + ".", "");
+      say("slot-msg", dayLabel(selDay, true) + " updated.", "");
     });
 
     $("allday").addEventListener("click", function () {
@@ -1522,7 +1359,7 @@
       renderCal();
       renderSlots();
       renderMyCode();
-      say("slot-msg", dayLabel(selDay, true) + " marked out all day.", "");
+      say("slot-msg", dayLabel(selDay, true) + " is out, whole day.", "");
     });
 
     $("freeday").addEventListener("click", function () {
@@ -1546,9 +1383,9 @@
       renderAll();
       selectTab("group");
       var left = cfg.names.length - Object.keys(responses).length;
-      say("group-msg", cfg.names[me] + " is in — " + (left
-        ? left + (left === 1 ? " person" : " people") + " still to answer."
-        : "that's everybody."), "ok");
+      say("group-msg", cfg.names[me] + " is in. " + (left
+        ? "Still waiting on " + left + (left === 1 ? " person." : " people.")
+        : "That is everybody!"), "ok");
     });
 
     $("clearmine").addEventListener("click", function () {
@@ -1556,24 +1393,24 @@
       delete responses[me];
       persist();
       renderAll();
-      say("finish-msg", "Cleared — you're free at every hour, and your answer is out of Group view until you finish again.", "");
+      say("finish-msg", "All clear. You are free at every hour again, and your answer is out of Group view until you hit Done.", "");
     });
 
     $("copycode").addEventListener("click", function () {
-      copy($("mycode").value, "mycode-msg", "Copied to your clipboard. Now paste it into the group chat.");
+      copy($("mycode").value, "mycode-msg", "Copied. Paste it in the group chat now.");
     });
 
     $("addcode").addEventListener("click", function () {
       var raw = $("paste").value;
-      if (!raw.trim()) { say("paste-msg", "Paste a code first.", "err"); return; }
+      if (!raw.trim()) { say("paste-msg", "Paste a code in first.", "err"); return; }
       try {
         var r = decodeCode(raw, cfg.names.length);
         responses[r.idx] = r.mask;
         persist();
         renderGroup();
-        renderConfirmed();
+        renderLocked();
         $("paste").value = "";
-        say("paste-msg", "Added " + cfg.names[r.idx] + ".", "ok");
+        say("paste-msg", cfg.names[r.idx] + " is in.", "ok");
       } catch (err) {
         say("paste-msg", err.message, "err");
       }
@@ -1587,8 +1424,8 @@
       responses = {};
       persist();
       renderGroup();
-      renderConfirmed();
-      say("paste-msg", "All answers removed.", "");
+      renderLocked();
+      say("paste-msg", "Every answer is gone.", "");
     });
 
     $("replied").addEventListener("click", function (e) {
@@ -1598,8 +1435,8 @@
       delete responses[idx];
       persist();
       renderGroup();
-      renderConfirmed();
-      say("paste-msg", "Removed " + name + "'s answer.", "");
+      renderLocked();
+      say("paste-msg", name + " is back on the waiting list.", "");
     });
 
     $("ranked").addEventListener("click", function (e) {
@@ -1610,20 +1447,20 @@
         cfg.pick = null;
         pushCfg();
         renderAll();
-        say("pick-msg", "Un-confirmed.", "");
+        say("pick-msg", "Unlocked. Nothing is fixed yet.", "");
         return;
       }
       cfg.pick = { day: day, hour: hour };
       pushCfg();
       renderAll();
-      say("pick-msg", whenLabel(cfg.pick, true) + " is confirmed. Copy the link again from Roster so everyone sees it — then tap the green banner for photos.", "ok");
+      say("pick-msg", whenLabel(cfg.pick, true) + " it is. Copy the link again from Roster so everybody sees it.", "ok");
     });
 
     $("save").addEventListener("click", function () {
       var names = $("names").value.split("\n").map(function (s) { return s.trim(); }).filter(Boolean).slice(0, 30);
       if (names.length < 2) { say("save-msg", "Put in at least two names, one per line.", "err"); return; }
       var start = parseYmd($("start").value);
-      if (!start) { say("save-msg", "Pick a start date.", "err"); return; }
+      if (!start) { say("save-msg", "Pick a start date first.", "err"); return; }
       cfg = {
         name: $("gname").value.trim().slice(0, 60),
         names: names.map(function (n) { return n.slice(0, 40); }),
@@ -1635,7 +1472,7 @@
       pushCfg();
       bootState();
       renderAll();
-      say("save-msg", "Saved. Copy the link below and send it to the group.", "ok");
+      say("save-msg", "Saved. Copy the link below and send it round.", "ok");
     });
 
     $("loadexample").addEventListener("click", function () {
@@ -1644,60 +1481,11 @@
       location.hash = "";
       bootState();
       renderAll();
-      say("save-msg", "Example group loaded.", "");
+      say("save-msg", "Example is back.", "");
     });
 
     $("copylink").addEventListener("click", function () {
-      copy($("sharelink").textContent, "link-msg", "Link copied. Anyone who opens it sees the same roster and dates.");
-    });
-
-    $("pickfile").addEventListener("change", function (e) {
-      var files = Array.prototype.slice.call(e.target.files || []);
-      if (!files.length) return;
-      say("album-msg", "Adding " + files.length + (files.length === 1 ? " photo…" : " photos…"), "");
-      var added = 0, failed = 0;
-      files.reduce(function (chain, f) {
-        return chain.then(function () {
-          return shrink(f).then(addPhoto).then(function () { added++; }, function () { failed++; });
-        });
-      }, Promise.resolve()).then(function () {
-        e.target.value = "";
-        renderAlbum();
-        say("album-msg", added + (added === 1 ? " photo added" : " photos added") +
-          (failed ? " · " + failed + " couldn't be read" : "") + ". Stored on this device only.",
-          failed ? "err" : "ok");
-      });
-    });
-
-    $("shots").addEventListener("click", function (e) {
-      var open = e.target.closest("button.open");
-      if (open) {
-        $("lightbox-img").src = open.dataset.url;
-        $("lightbox").hidden = false;
-        $("lightbox-close").focus();
-        return;
-      }
-      var del = e.target.closest("button.del");
-      if (del) {
-        removePhoto(+del.dataset.del).then(function () {
-          renderAlbum();
-          say("album-msg", "Photo deleted.", "");
-        }, function () {
-          say("album-msg", "Couldn't delete that photo.", "err");
-        });
-      }
-    });
-
-    function closeLightbox() {
-      $("lightbox").hidden = true;
-      $("lightbox-img").src = "";
-    }
-    $("lightbox-close").addEventListener("click", closeLightbox);
-    $("lightbox").addEventListener("click", function (e) {
-      if (e.target === $("lightbox")) closeLightbox();
-    });
-    document.addEventListener("keydown", function (e) {
-      if (e.key === "Escape" && !$("lightbox").hidden) closeLightbox();
+      copy($("sharelink").textContent, "link-msg", "Link copied. Whoever opens it sees the same names and dates.");
     });
 
     window.addEventListener("hashchange", function () {
@@ -1721,6 +1509,6 @@
     localStorage.setItem("10pax:probe", "1");
     localStorage.removeItem("10pax:probe");
   } catch (e) {
-    $("hosthint").textContent = "This browser is blocking storage, so your hours and collected answers won't be remembered after you close the tab.";
+    $("hosthint").textContent = "This browser blocks storage, so your hours and the answers you collect will not survive closing the tab.";
   }
 </script>

@@ -24,12 +24,21 @@ profile excludes them.
 3. **Group view** — one row per day showing that day's *best hour*, ranked by how few
    people are out, plus who's out and who hasn't answered. **Confirm** locks a
    day+hour in.
-4. **Photos** — appears once a time is confirmed. Tap the green banner to reach it.
+4. **Lock it in** — the chosen day and hour rides in the link, so re-copying the link
+   tells everyone what was decided.
 
-### Theme
+### Look and feel
 
-Light / dark / auto, cycled from the button in the masthead and remembered per
-device. Auto follows the viewer's OS setting.
+Deliberately loud: lilac ground, grape/mint/sun/coral doing semantic work (mint =
+everyone free, sun = a couple out, coral = can't make it), one hue per person on the
+roster, Fredoka for headings and Space Mono for hours and codes. Light / dark / auto
+cycles from the masthead button and is remembered per device.
+
+Copy is deliberately informal. It was checked with the
+[unslop](https://github.com/theclaymethod/unslop) skill's scanners —
+`banned_phrase_scan`, `structure_scan`, `silhouette_scan`, `readability_metrics` — which
+report zero banned phrases, no structure flags, and a staccato share of 0.0 (loosening
+the register must not produce choppy anti-slop prose).
 
 No accounts, no backend, no analytics. A viewer's own selections and the codes an
 organiser collects are kept in that browser's `localStorage` only.
@@ -51,24 +60,19 @@ laid end to end from the roster's start Monday — so a code is only meaningful 
 the roster it was generated from. A mistyped or stale code is
 rejected rather than silently misread.
 
-## Device boundaries (what a static page can't do)
+## The device boundary
 
-Two features are real but device-local, and both need the hosted version to work the
-way you'd want:
+**Done** records the answer in that person's own browser, so it fills in Group view on
+*their* phone. Pasting the code into the chat is still the only way an answer crosses
+to the organiser's device.
 
-- **Finish** records the answer in that person's own browser. It fills in Group view
-  on *their* device. Pasting the code into the chat is still the only way an answer
-  crosses to the organiser's device.
-- **Photos** are stored in the viewer's own IndexedDB (downscaled to 1600px on
-  import). Nothing is uploaded; nobody else can see them. A genuinely shared album
-  needs real identity — you have to know who may see the photos — and real storage.
-
-`db` (shared realtime state) and `assets` (artifact-hosted uploads) are both
-organization-internal: every viewer must be a signed-in member of the owner's org.
-That excludes exactly the account-less friends this is built for, which is why neither
-is used.
+The reason is that `db` — shared realtime state for a published artifact — is
+organization-internal: every viewer has to be a signed-in member of the owner's org.
+That excludes exactly the account-less friends this is built for.
 
 ## Not built yet
 
-- A hosted backend, which is what removes both boundaries above: answers landing
-  directly in the organiser's Group view, and one shared album for the group.
+- A hosted backend, which is what removes the boundary above: answers landing straight
+  in the organiser's Group view instead of travelling as codes.
+- Photo sharing. Dropped from scope; a closed group album needs real identity and real
+  storage, so it belongs in that hosted app rather than a static page.

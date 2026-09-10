@@ -10,18 +10,26 @@ and the negotiation happens in a chat thread where nobody can see the overlap. S
 members aren't on social media at all, so anything that requires a signup or a public
 profile excludes them.
 
-## v1 — the scheduling wedge
+## v2 — the scheduling wedge, at the hour
 
 `artifact/10pax.html` is a single, dependency-free page:
 
 1. **Roster** — the organiser sets the group name, the names (one per line), the start
    Monday and how many weeks to look at. This produces a share link; the whole roster
    travels inside the URL fragment, so no server holds it.
-2. **Your days** — a friend opens the link, picks their name, and taps the days they
-   *can't* make. The page gives them a short code (`PAX-3-K7X2M9-B`) to paste back
-   into the group chat.
-3. **Group view** — the organiser pastes the codes in. Dates rank by how few people
-   are out, showing who's out on each and who hasn't replied yet.
+2. **Your days** — a friend opens the link, picks their name, taps a day to open its
+   hours, and crosses out what doesn't work. **Finish** puts the answer straight into
+   Group view. Meeting windows are weekday evenings 6–10pm (4 hourly slots) and
+   weekends 10am–10pm (12 slots).
+3. **Group view** — one row per day showing that day's *best hour*, ranked by how few
+   people are out, plus who's out and who hasn't answered. **Confirm** locks a
+   day+hour in.
+4. **Photos** — appears once a time is confirmed. Tap the green banner to reach it.
+
+### Theme
+
+Light / dark / auto, cycled from the button in the masthead and remembered per
+device. Auto follows the viewer's OS setting.
 
 No accounts, no backend, no analytics. A viewer's own selections and the codes an
 organiser collects are kept in that browser's `localStorage` only.
@@ -36,15 +44,31 @@ uses needs nothing from anybody.
 
 ### Code format
 
-`PAX-<member index, base36>-<unavailable-day bitmask, base36>-<checksum>`
+`PAX-<member index, base36>-<unavailable-slot bitmask, base36>-<checksum>`
 
-The bitmask is over day offsets from the roster's start Monday, so a code is only
-meaningful against the roster it was generated from. A mistyped or stale code is
+Each day contributes as many bits as it has slots (4 on a weekday, 12 at the weekend),
+laid end to end from the roster's start Monday — so a code is only meaningful against
+the roster it was generated from. A mistyped or stale code is
 rejected rather than silently misread.
+
+## Device boundaries (what a static page can't do)
+
+Two features are real but device-local, and both need the hosted version to work the
+way you'd want:
+
+- **Finish** records the answer in that person's own browser. It fills in Group view
+  on *their* device. Pasting the code into the chat is still the only way an answer
+  crosses to the organiser's device.
+- **Photos** are stored in the viewer's own IndexedDB (downscaled to 1600px on
+  import). Nothing is uploaded; nobody else can see them. A genuinely shared album
+  needs real identity — you have to know who may see the photos — and real storage.
+
+`db` (shared realtime state) and `assets` (artifact-hosted uploads) are both
+organization-internal: every viewer must be a signed-in member of the owner's org.
+That excludes exactly the account-less friends this is built for, which is why neither
+is used.
 
 ## Not built yet
 
-- **Private photo album.** The other half of the original problem: a closed album for
-  the group, no feed and no public profiles. It needs real identity (you have to know
-  who may see the photos) and real storage, so it belongs in a hosted app rather than
-  a static page.
+- A hosted backend, which is what removes both boundaries above: answers landing
+  directly in the organiser's Group view, and one shared album for the group.

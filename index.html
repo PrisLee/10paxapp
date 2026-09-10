@@ -1,0 +1,1531 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>10 Pax</title>
+<meta name="description" content="Find the one hour your whole group is actually free.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%97%93%EF%B8%8F%3C/text%3E%3C/svg%3E">
+<style>
+  :root { color-scheme: light dark; }
+  body { margin: 0; font: 14px system-ui, sans-serif; background: #fafaf9; }
+  img { max-width: 100%; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:ital,wght@0,400;0,600;0,700;1,400&family=Space+Mono:wght@400;700&display=swap">
+<script>
+  try {
+    var t0 = localStorage.getItem("10pax:theme");
+    if (t0 === "light" || t0 === "dark") document.documentElement.setAttribute("data-theme", t0);
+  } catch (e) { /* storage blocked */ }
+</script>
+<style>
+  :root {
+    --paper: #FBF7FF;
+    --surface: #FFFFFF;
+    --surface-2: #F1EBFE;
+    --ink: #1E1733;
+    --ink-2: #55496F;
+    --ink-3: #8A7FA3;
+    --line: #E4DBF7;
+    --line-2: #CDBFEE;
+    --grape: #6D4AFF;
+    --grape-soft: #EAE2FF;
+    --mint: #0B9A70;
+    --mint-soft: #D4F4E8;
+    --sun: #B87200;
+    --sun-soft: #FFEBC6;
+    --coral: #D93E51;
+    --coral-soft: #FFE0E3;
+    --sky: #1B8CCC;
+    --pink: #D4479A;
+    --on-grape: #FFFFFF;
+    --shadow: 0 2px 3px rgba(30, 23, 51, .05), 0 10px 26px -18px rgba(30, 23, 51, .35);
+    --display: "Fredoka", "Trebuchet MS", sans-serif;
+    --body: "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --mono: "Space Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #14111F;
+      --surface: #1D1930;
+      --surface-2: #262040;
+      --ink: #F3EFFF;
+      --ink-2: #B9AEDA;
+      --ink-3: #8579AB;
+      --line: #322A4E;
+      --line-2: #453A66;
+      --grape: #A78BFF;
+      --grape-soft: #2B2350;
+      --mint: #4DD4A8;
+      --mint-soft: #12332A;
+      --sun: #F0B94E;
+      --sun-soft: #3A2D10;
+      --coral: #FF8A96;
+      --coral-soft: #3D1F26;
+      --sky: #62BDF0;
+      --pink: #F183C4;
+      --on-grape: #14111F;
+      --shadow: 0 2px 3px rgba(0, 0, 0, .3), 0 10px 26px -18px rgba(0, 0, 0, .8);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --paper: #14111F;
+    --surface: #1D1930;
+    --surface-2: #262040;
+    --ink: #F3EFFF;
+    --ink-2: #B9AEDA;
+    --ink-3: #8579AB;
+    --line: #322A4E;
+    --line-2: #453A66;
+    --grape: #A78BFF;
+    --grape-soft: #2B2350;
+    --mint: #4DD4A8;
+    --mint-soft: #12332A;
+    --sun: #F0B94E;
+    --sun-soft: #3A2D10;
+    --coral: #FF8A96;
+    --coral-soft: #3D1F26;
+    --sky: #62BDF0;
+    --pink: #F183C4;
+    --on-grape: #14111F;
+    --shadow: 0 2px 3px rgba(0, 0, 0, .3), 0 10px 26px -18px rgba(0, 0, 0, .8);
+  }
+
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 15.5px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  .wrap {
+    max-width: 680px;
+    margin: 0 auto;
+    padding-inline: 18px;
+    padding-block: 22px 64px;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+
+  /* ---- masthead ---- */
+  .mast { display: flex; flex-direction: column; gap: 9px; }
+  .toprow { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+
+  .wordmark {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 34px;
+    letter-spacing: -.01em;
+    line-height: 1.02;
+    margin: 0;
+    min-width: 0;
+    color: var(--grape);
+  }
+  .wordmark .two { color: var(--pink); }
+
+  .wordmark .count {
+    display: inline-block;
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: 12px;
+    color: var(--mint);
+    background: var(--mint-soft);
+    border-radius: 999px;
+    padding: 3px 10px;
+    letter-spacing: 0;
+    vertical-align: middle;
+    margin-left: 8px;
+  }
+
+  button.icon {
+    appearance: none;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: none;
+    background: var(--surface);
+    color: var(--ink-2);
+    border: 2px solid var(--line);
+    border-radius: 999px;
+    padding: 6px 12px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  button.icon:hover { color: var(--ink); border-color: var(--line-2); }
+  button.icon.on { background: var(--grape-soft); border-color: var(--grape); color: var(--grape); }
+  button.icon svg { width: 14px; height: 14px; flex: none; }
+
+  .tagline { margin: 0; color: var(--ink-2); max-width: 46ch; font-size: 16px; }
+
+  .groupline {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--ink-3);
+    margin: 0;
+  }
+
+  /* ---- notice ---- */
+  .notice {
+    background: var(--sun-soft);
+    border: 2px solid var(--sun);
+    border-radius: 12px;
+    padding: 12px 14px;
+    color: var(--ink);
+    font-size: 14.5px;
+  }
+  .notice strong { font-weight: 700; }
+  .notice p { margin: 0; }
+
+  /* ---- locked-in banner ---- */
+  .locked {
+    background: var(--grape);
+    border-radius: 16px;
+    padding: 17px 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    color: var(--on-grape);
+    animation: pop .22s ease-out;
+  }
+  @keyframes pop { from { transform: scale(.97); } to { transform: scale(1); } }
+
+  .locked .flag {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: .1em;
+    background: rgba(255, 255, 255, .22);
+    border-radius: 999px;
+    padding: 4px 11px;
+    flex: none;
+  }
+  .locked .body { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+  .locked .lede {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 1.15;
+  }
+  .locked .sub { font-size: 13.5px; opacity: .88; }
+
+  /* ---- tabs ---- */
+  .tabs { display: flex; gap: 3px; background: var(--surface-2); padding: 4px; border-radius: 999px; }
+
+  .tabs button {
+    flex: 1;
+    min-width: 0;
+    appearance: none;
+    border: 0;
+    background: transparent;
+    font: inherit;
+    font-size: 14.5px;
+    font-weight: 700;
+    color: var(--ink-2);
+    padding: 9px 6px;
+    border-radius: 999px;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .tabs button[aria-selected="true"] { background: var(--grape); color: var(--on-grape); }
+  .tabs button:hover:not([aria-selected="true"]) { color: var(--grape); }
+
+  /* ---- panels ---- */
+  .panel { display: flex; flex-direction: column; gap: 24px; }
+  section { display: flex; flex-direction: column; gap: 12px; }
+
+  h2 {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 22px;
+    letter-spacing: -.01em;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  .hint { margin: 0; color: var(--ink-2); font-size: 14.5px; max-width: 60ch; }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .09em;
+    color: var(--grape);
+    margin: 0;
+  }
+
+  /* ---- calendar ---- */
+  .cal { display: flex; flex-direction: column; gap: 5px; }
+
+  .dow {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 5px;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    text-align: center;
+  }
+
+  .monthrow {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: .02em;
+    color: var(--ink-2);
+    padding-top: 9px;
+    margin-top: 3px;
+    border-top: 2px dotted var(--line);
+  }
+
+  .week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 5px; }
+
+  .day {
+    appearance: none;
+    font: inherit;
+    font-family: var(--mono);
+    font-size: 14px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    aspect-ratio: 1;
+    max-width: 100%;
+    min-width: 0;
+    border: 2px solid var(--line);
+    background: var(--surface);
+    color: var(--ink);
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 0;
+    transition: transform .1s, background-color .12s, border-color .12s;
+  }
+
+  .day:hover:not(:disabled) { transform: translateY(-1px); border-color: var(--grape); }
+  .day.weekend:not(:disabled) { background: var(--mint-soft); border-color: var(--mint-soft); }
+
+  .day .dot { width: 5px; height: 5px; border-radius: 999px; background: transparent; }
+  .day.some { background: var(--sun-soft); border-color: var(--sun); }
+  .day.some .dot { background: var(--sun); }
+
+  .day.all {
+    background: var(--coral-soft);
+    border-color: var(--coral);
+    color: var(--coral);
+    text-decoration: line-through;
+    text-decoration-thickness: 2px;
+  }
+
+  .day:disabled { color: var(--ink-3); opacity: .35; cursor: default; background: transparent; border-color: transparent; }
+  .day.sel:not(:disabled) { border-color: var(--grape); box-shadow: 0 0 0 3px var(--grape-soft); }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 7px 14px; font-size: 13.5px; color: var(--ink-2); }
+  .legend span { display: flex; align-items: center; gap: 6px; }
+  .swatch { width: 13px; height: 13px; border-radius: 4px; border: 2px solid var(--line); flex: none; }
+  .swatch.free { background: var(--mint-soft); border-color: var(--mint); }
+  .swatch.some { background: var(--sun-soft); border-color: var(--sun); }
+  .swatch.busy { background: var(--coral-soft); border-color: var(--coral); }
+
+  /* ---- hour chips ---- */
+  .chips { display: flex; flex-wrap: wrap; gap: 7px; }
+
+  button.chip {
+    appearance: none;
+    font: inherit;
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    border: 2px solid var(--line-2);
+    background: var(--surface);
+    color: var(--ink);
+    border-radius: 999px;
+    padding: 8px 14px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  button.chip:hover { border-color: var(--grape); color: var(--grape); }
+  button.chip[aria-pressed="true"] {
+    background: var(--coral-soft);
+    border-color: var(--coral);
+    color: var(--coral);
+    text-decoration: line-through;
+    text-decoration-thickness: 2px;
+  }
+
+  /* ---- controls ---- */
+  label.field { display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 700; }
+
+  input[type="text"], input[type="date"], input[type="number"], select, textarea {
+    font: inherit;
+    font-size: 15.5px;
+    color: var(--ink);
+    background: var(--surface);
+    border: 2px solid var(--line-2);
+    border-radius: 10px;
+    padding: 10px 12px;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  textarea { font-family: var(--mono); font-size: 14px; line-height: 1.8; resize: vertical; }
+
+  .row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .row > * { flex: 1 1 140px; min-width: 0; }
+
+  button.act {
+    appearance: none;
+    font: inherit;
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 16px;
+    border-radius: 999px;
+    padding: 11px 18px;
+    cursor: pointer;
+    border: 2px solid var(--grape);
+    background: var(--grape);
+    color: var(--on-grape);
+    white-space: nowrap;
+  }
+  button.act:hover { filter: brightness(1.08); }
+  button.act.ghost { background: transparent; color: var(--ink); border-color: var(--line-2); }
+  button.act.ghost:hover { background: var(--surface-2); border-color: var(--grape); color: var(--grape); filter: none; }
+
+  :where(button, input, select, textarea, a):focus-visible { outline: 3px solid var(--sky); outline-offset: 2px; }
+
+  /* ---- slab ---- */
+  .slab {
+    background: var(--surface);
+    border: 2px solid var(--line);
+    border-radius: 14px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+    box-shadow: var(--shadow);
+  }
+
+  .codeout {
+    font-family: var(--mono);
+    font-size: 13.5px;
+    font-weight: 700;
+    letter-spacing: .02em;
+    word-break: break-all;
+    color: var(--grape);
+    background: var(--grape-soft);
+    border: 0;
+    border-radius: 10px;
+    padding: 13px;
+    text-align: center;
+    width: 100%;
+  }
+
+  .linkout { font-family: var(--mono); font-size: 11.5px; word-break: break-all; margin: 0; color: var(--ink-2); }
+
+  .msg { font-size: 13.5px; color: var(--ink-2); min-height: 1.2em; margin: 0; }
+  .msg.err { color: var(--coral); font-weight: 600; }
+  .msg.ok { color: var(--mint); font-weight: 600; }
+
+  /* ---- ranked rows ---- */
+  ol.dates { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 9px; }
+
+  .date {
+    display: grid;
+    grid-template-columns: 6px 1fr auto;
+    gap: 0 12px;
+    align-items: center;
+    background: var(--surface);
+    border: 2px solid var(--line);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+
+  .date .stripe { align-self: stretch; background: var(--line-2); }
+  .date.clear .stripe { background: var(--mint); }
+  .date.near .stripe { background: var(--sun); }
+  .date.hard .stripe { background: var(--coral); }
+  .date.picked { border-color: var(--grape); box-shadow: 0 0 0 3px var(--grape-soft); }
+
+  .date .who { padding: 11px 0; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .date .when {
+    font-family: var(--mono);
+    font-size: 14.5px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+  .date .out { font-size: 13.5px; color: var(--ink-2); }
+  .date .out em { font-style: normal; color: var(--coral); font-weight: 700; }
+
+  .date .end { display: flex; align-items: center; gap: 8px; margin-right: 11px; flex: none; }
+
+  .tally {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    padding: 4px 9px;
+    border-radius: 999px;
+    background: var(--surface-2);
+    color: var(--ink-2);
+    white-space: nowrap;
+  }
+  .date.clear .tally { background: var(--mint-soft); color: var(--mint); }
+  .date.near .tally { background: var(--sun-soft); color: var(--sun); }
+  .date.hard .tally { background: var(--coral-soft); color: var(--coral); }
+
+  button.pick {
+    appearance: none;
+    font: inherit;
+    font-family: var(--display);
+    font-size: 13.5px;
+    font-weight: 600;
+    border: 2px solid var(--line-2);
+    background: var(--surface);
+    color: var(--ink);
+    border-radius: 999px;
+    padding: 6px 12px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  button.pick:hover { background: var(--grape-soft); border-color: var(--grape); color: var(--grape); }
+  button.pick[aria-pressed="true"] { background: var(--grape); border-color: var(--grape); color: var(--on-grape); }
+
+  /* ---- people ---- */
+  ul.people { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 7px; }
+
+  ul.people li {
+    font-size: 13.5px;
+    font-weight: 600;
+    padding: 5px 11px;
+    border-radius: 999px;
+    border: 2px solid var(--line);
+    background: var(--surface);
+    color: var(--ink-3);
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  ul.people li .pip { width: 8px; height: 8px; border-radius: 999px; flex: none; opacity: .35; }
+  ul.people li.in { color: var(--ink); }
+  ul.people li.in .pip { opacity: 1; }
+  ul.people li .x {
+    appearance: none; border: 0; background: none; padding: 0; margin: 0;
+    font: inherit; font-size: 15px; color: var(--ink-3); cursor: pointer; line-height: 1;
+  }
+  ul.people li .x:hover { color: var(--coral); }
+
+  .empty {
+    border: 2px dashed var(--line-2);
+    border-radius: 14px;
+    padding: 18px 14px;
+    color: var(--ink-2);
+    font-size: 14.5px;
+    text-align: center;
+  }
+
+  footer {
+    border-top: 2px dotted var(--line);
+    padding-top: 16px;
+    color: var(--ink-3);
+    font-size: 13.5px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  footer p { margin: 0; }
+  footer strong { color: var(--ink-2); }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+</style>
+
+<div class="wrap">
+  <header class="mast">
+    <div class="toprow">
+      <h1 class="wordmark">HEY <span class="two">HEY</span><span class="count" id="paxcount">10 pax</span></h1>
+      <button class="icon" id="themebtn" type="button" aria-label="Colour theme"></button>
+    </div>
+    <p class="tagline">mark where you cant make it and copy the code and paste in group chat ah</p>
+    <p class="groupline" id="groupline"></p>
+  </header>
+
+  <div class="notice" id="example-notice" hidden>
+    <p><strong>This one is just an example.</strong> Go to Roster, put in your own names and dates, then send the link out.</p>
+  </div>
+
+  <div class="locked" id="locked" hidden>
+    <span class="flag">IT&rsquo;S ON</span>
+    <span class="body">
+      <span class="lede" id="locked-when"></span>
+      <span class="sub" id="locked-sub"></span>
+    </span>
+  </div>
+
+  <div class="tabs" role="tablist" aria-label="Sections">
+    <button role="tab" id="tab-mine" aria-controls="panel-mine" aria-selected="true">Your days</button>
+    <button role="tab" id="tab-group" aria-controls="panel-group" aria-selected="false">Group view</button>
+    <button role="tab" id="tab-roster" aria-controls="panel-roster" aria-selected="false">Roster</button>
+  </div>
+
+  <div class="panel" id="panel-mine" role="tabpanel" aria-labelledby="tab-mine">
+    <section>
+      <h2>Cross out what you cannot do</h2>
+      <p class="hint">Weeknights are 6&ndash;10pm, weekends 10am&ndash;10pm. You start off free for everything. Tap any day to see its hours.</p>
+      <label class="field" for="who">
+        Who are you?
+        <select id="who"></select>
+      </label>
+    </section>
+
+    <section>
+      <div class="cal" id="cal"></div>
+      <div class="legend">
+        <span><i class="swatch free"></i> Weekend</span>
+        <span><i class="swatch some"></i> Some hours gone</span>
+        <span><i class="swatch busy"></i> Whole day gone</span>
+      </div>
+    </section>
+
+    <section>
+      <p class="eyebrow" id="slot-eyebrow">Hours</p>
+      <div class="slab">
+        <div class="chips" id="slots"></div>
+        <div class="row">
+          <button class="act ghost" id="allday">Cannot, whole day</button>
+          <button class="act ghost" id="freeday">Actually I&rsquo;m free</button>
+        </div>
+        <p class="msg" id="slot-msg">Crossed out means you cannot make it.</p>
+      </div>
+    </section>
+
+    <section>
+      <p class="eyebrow">Finished marking?</p>
+      <div class="slab">
+        <div class="row">
+          <button class="act" id="finish">Done!</button>
+          <button class="act ghost" id="clearmine">Start over</button>
+        </div>
+        <p class="msg" id="finish-msg">Hit Done and your hours turn up in Group view.</p>
+      </div>
+    </section>
+
+    <section>
+      <p class="eyebrow">Answering on your own phone?</p>
+      <div class="slab">
+        <input class="codeout" id="mycode" readonly aria-label="Your code">
+        <div class="row">
+          <button class="act ghost" id="copycode">Copy my code</button>
+        </div>
+        <p class="msg" id="mycode-msg">Group view only fills up on the phone you answered on. Copy this and drop it in the chat so whoever is organising can add you.</p>
+      </div>
+    </section>
+  </div>
+
+  <div class="panel" id="panel-group" role="tabpanel" aria-labelledby="tab-group" hidden>
+    <section>
+      <h2>When can everybody make it</h2>
+      <p class="msg ok" id="group-msg"></p>
+      <p class="hint" id="group-hint"></p>
+      <ol class="dates" id="ranked"></ol>
+      <p class="msg" id="pick-msg"></p>
+    </section>
+
+    <section>
+      <p class="eyebrow" id="replied-eyebrow">Who answered</p>
+      <ul class="people" id="replied"></ul>
+      <p class="hint" id="waiting"></p>
+    </section>
+
+    <section>
+      <p class="eyebrow">Got a code from the chat?</p>
+      <div class="slab">
+        <label class="field" for="paste">
+          Paste it here
+          <input type="text" id="paste" placeholder="PAX-3-K7X2M9-B" spellcheck="false" autocomplete="off">
+        </label>
+        <div class="row">
+          <button class="act" id="addcode">Add it</button>
+          <button class="act ghost" id="resetcodes">Clear all answers</button>
+        </div>
+        <p class="msg" id="paste-msg"></p>
+      </div>
+    </section>
+  </div>
+
+  <div class="panel" id="panel-roster" role="tabpanel" aria-labelledby="tab-roster" hidden>
+    <section>
+      <h2>Your people, your dates</h2>
+      <p class="hint">Change the names or the dates and it becomes a new group, so answers you already collected get cleared. Sort this out before you send the link.</p>
+      <label class="field" for="gname">
+        What do you call this group?
+        <input type="text" id="gname" placeholder="Thursday Club" autocomplete="off">
+      </label>
+      <label class="field" for="names">
+        One name per line
+        <textarea id="names" rows="10" spellcheck="false"></textarea>
+      </label>
+      <div class="row">
+        <label class="field" for="start">
+          First week starts (Monday)
+          <input type="date" id="start">
+        </label>
+        <label class="field" for="weeks">
+          How many weeks?
+          <input type="number" id="weeks" min="1" max="8" step="1">
+        </label>
+      </div>
+      <div class="row">
+        <button class="act" id="save">Save</button>
+        <button class="act ghost" id="loadexample">Show the example again</button>
+      </div>
+      <p class="msg" id="save-msg"></p>
+    </section>
+
+    <section>
+      <p class="eyebrow">Send them this link</p>
+      <div class="slab">
+        <p class="linkout" id="sharelink"></p>
+        <div class="row">
+          <button class="act" id="copylink">Copy link</button>
+        </div>
+        <p class="msg" id="link-msg">The names and dates ride inside the link, so nobody has to sign up for anything.</p>
+      </div>
+    </section>
+  </div>
+
+  <footer>
+    <p><strong>Nothing leaves your phone.</strong> The names and dates live in the link. Your hours and the codes you collect stay in this browser.</p>
+    <p id="hosthint"></p>
+  </footer>
+</div>
+
+<script>
+  "use strict";
+
+  var DOW = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  var MONTHS = ["January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"];
+
+  var EXAMPLE_NAMES = ["Priscilla", "Wei Ming", "Sarah", "Daniel", "Hui Ling",
+    "Marcus", "Jia Yi", "Ethan", "Rachel", "Kenji"];
+
+  // One hue per person, so the roster reads at a glance.
+  var HUES = ["#6D4AFF", "#0B9A70", "#E8A317", "#D93E51", "#1B8CCC",
+    "#D4479A", "#6FA82B", "#E9701E", "#00A2B8", "#8B5CF6"];
+
+  // Weeknights 6-10pm, weekends 10am-10pm.
+  var WEEKDAY_FROM = 18, WEEKEND_FROM = 10, UNTIL = 22;
+
+  var $ = function (id) { return document.getElementById(id); };
+
+  function ymd(d) {
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") +
+      "-" + String(d.getDate()).padStart(2, "0");
+  }
+
+  function parseYmd(s) {
+    var p = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(s || ""));
+    if (!p) return null;
+    var d = new Date(+p[1], +p[2] - 1, +p[3]);
+    return isNaN(d.getTime()) ? null : d;
+  }
+
+  function mondayOf(d) {
+    var out = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    out.setDate(out.getDate() - ((out.getDay() + 6) % 7));
+    return out;
+  }
+
+  function addDays(d, n) {
+    var out = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    out.setDate(out.getDate() + n);
+    return out;
+  }
+
+  function today() {
+    var n = new Date();
+    return new Date(n.getFullYear(), n.getMonth(), n.getDate());
+  }
+
+  /* ---------- hours ---------- */
+
+  function isWeekend(dayIdx) { return (dayIdx % 7) >= 5; }
+
+  function hoursFor(dayIdx) {
+    var out = [];
+    for (var h = isWeekend(dayIdx) ? WEEKEND_FROM : WEEKDAY_FROM; h < UNTIL; h++) out.push(h);
+    return out;
+  }
+
+  function slotCount(dayIdx) {
+    return isWeekend(dayIdx) ? UNTIL - WEEKEND_FROM : UNTIL - WEEKDAY_FROM;
+  }
+
+  var offsets = [0];
+
+  function buildOffsets() {
+    var offs = [0];
+    for (var d = 0; d < nDays(); d++) offs.push(offs[d] + slotCount(d));
+    return offs;
+  }
+
+  function totalBits() { return offsets[nDays()]; }
+  function bitFor(dayIdx, slotIdx) { return offsets[dayIdx] + slotIdx; }
+
+  function hourText(h) {
+    return (h % 12 === 0 ? 12 : h % 12) + (h < 12 ? "am" : "pm");
+  }
+
+  function slotText(h) {
+    var a = h < 12 ? "am" : "pm", b = (h + 1) < 12 ? "am" : "pm";
+    var ha = h % 12 === 0 ? 12 : h % 12, hb = (h + 1) % 12 === 0 ? 12 : (h + 1) % 12;
+    return a === b ? ha + "–" + hb + b : ha + a + "–" + hb + b;
+  }
+
+  /* ---------- config ---------- */
+
+  function b64uEncode(str) {
+    var bytes = new TextEncoder().encode(str), bin = "";
+    for (var i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+    return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  }
+
+  function b64uDecode(s) {
+    var t = String(s).replace(/-/g, "+").replace(/_/g, "/");
+    while (t.length % 4) t += "=";
+    var bin = atob(t), bytes = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return new TextDecoder().decode(bytes);
+  }
+
+  function encodeCfg(c) {
+    var o = { n: c.name, m: c.names, s: c.start, w: c.weeks };
+    if (c.pick) { o.d = c.pick.day; o.h = c.pick.hour; }
+    return b64uEncode(JSON.stringify(o));
+  }
+
+  function decodeCfg(raw) {
+    var o = JSON.parse(b64uDecode(raw));
+    if (!Array.isArray(o.m) || !o.m.length) throw new Error("no names");
+    var start = parseYmd(o.s);
+    if (!start) throw new Error("bad start");
+    var weeks = Math.min(8, Math.max(1, Math.round(+o.w || 4)));
+    var pick = null;
+    if (typeof o.d === "number" && o.d >= 0 && o.d < weeks * 7 &&
+      typeof o.h === "number" && o.h >= WEEKEND_FROM && o.h < UNTIL) {
+      pick = { day: Math.round(o.d), hour: Math.round(o.h) };
+    }
+    return {
+      name: String(o.n || "").slice(0, 60),
+      names: o.m.map(function (n) { return String(n).slice(0, 40); }).slice(0, 30),
+      start: ymd(mondayOf(start)),
+      weeks: weeks,
+      pick: pick
+    };
+  }
+
+  function exampleCfg() {
+    return {
+      name: "Thursday Club",
+      names: EXAMPLE_NAMES.slice(),
+      start: ymd(mondayOf(today())),
+      weeks: 4,
+      pick: null
+    };
+  }
+
+  /* ---------- codes ---------- */
+
+  function checksum(s) {
+    var h = 7;
+    for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 36;
+    return h.toString(36).toUpperCase();
+  }
+
+  function maskOf(bitSet) {
+    var mask = 0n;
+    bitSet.forEach(function (b) {
+      if (b >= 0 && b < totalBits()) mask |= (1n << BigInt(b));
+    });
+    return mask;
+  }
+
+  function encodeCode(idx, bitSet) {
+    var body = idx.toString(36).toUpperCase() + "-" + maskOf(bitSet).toString(36).toUpperCase();
+    return "PAX-" + body + "-" + checksum(body);
+  }
+
+  function decodeCode(raw, nMembers) {
+    var t = String(raw || "").toUpperCase().replace(/\s+/g, "").replace(/^PAX-/, "");
+    var parts = t.split("-");
+    if (parts.length !== 3) throw new Error("That code is missing a bit. It should look like PAX-3-K7X2M9-B.");
+    var body = parts[0] + "-" + parts[1];
+    if (checksum(body) !== parts[2]) throw new Error("Something got lost in the copy-paste. Grab the code again and try once more.");
+    var idx = parseInt(parts[0], 36);
+    if (isNaN(idx) || idx < 0 || idx >= nMembers) throw new Error("This code belongs to somebody who is not on the list. Maybe it came from an older link.");
+    if (!/^[0-9A-Z]+$/.test(parts[1])) throw new Error("There are characters in there that do not belong in a code.");
+    var mask = 0n;
+    for (var i = 0; i < parts[1].length; i++) mask = mask * 36n + BigInt(parseInt(parts[1][i], 36));
+    return { idx: idx, mask: mask };
+  }
+
+  function maskHas(mask, bit) { return ((mask >> BigInt(bit)) & 1n) === 1n; }
+
+  /* ---------- storage ---------- */
+
+  function cfgKey(c) {
+    // Excludes pick, so locking a time in does not throw away collected answers.
+    var s = c.names.join("|") + "@" + c.start + "/" + c.weeks;
+    var h = 0;
+    for (var i = 0; i < s.length; i++) h = (h * 33 + s.charCodeAt(i)) | 0;
+    return "10pax:" + (h >>> 0).toString(36);
+  }
+
+  function load(key, fallback) {
+    try {
+      var raw = localStorage.getItem(key);
+      return raw === null ? fallback : JSON.parse(raw);
+    } catch (e) { return fallback; }
+  }
+
+  function save(key, value) {
+    try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) { /* storage blocked */ }
+  }
+
+  /* ---------- state ---------- */
+
+  var cfg, isExample, store, me, busy, responses, tab = "mine", selDay = 0;
+
+  function nDays() { return cfg.weeks * 7; }
+
+  function firstFutureDay() {
+    var start = parseYmd(cfg.start), t = today();
+    for (var d = 0; d < nDays(); d++) if (addDays(start, d) >= t) return d;
+    return nDays() - 1;
+  }
+
+  function bootState() {
+    offsets = buildOffsets();
+    store = cfgKey(cfg);
+    var saved = load(store, null) || {};
+    me = typeof saved.me === "number" && saved.me >= 0 && saved.me < cfg.names.length ? saved.me : 0;
+    busy = new Set(Array.isArray(saved.busy)
+      ? saved.busy.filter(function (b) { return b >= 0 && b < totalBits(); }) : []);
+    responses = {};
+    var raw = saved.responses && typeof saved.responses === "object" ? saved.responses : {};
+    Object.keys(raw).forEach(function (k) {
+      var idx = +k;
+      if (idx >= 0 && idx < cfg.names.length && /^[0-9]+$/.test(String(raw[k]))) {
+        responses[idx] = BigInt(raw[k]);
+      }
+    });
+    selDay = cfg.pick ? cfg.pick.day : firstFutureDay();
+    if (isExample && !Object.keys(responses).length) seedExample();
+  }
+
+  function persist() {
+    var out = {};
+    Object.keys(responses).forEach(function (k) { out[k] = responses[k].toString(); });
+    save(store, { me: me, busy: Array.from(busy), responses: out });
+  }
+
+  // Example answers, so the page opens showing what it actually does.
+  function seedExample() {
+    var wholeDaysOut = { 1: [2, 9, 16], 2: [0, 1, 7, 14, 21], 4: [3, 11, 18, 25], 6: [9, 23], 7: [2, 13, 20] };
+    var lateOnly = [2, 6];
+    Object.keys(wholeDaysOut).forEach(function (k) {
+      var idx = +k, bits = new Set();
+      wholeDaysOut[k].forEach(function (d) {
+        if (d >= nDays()) return;
+        for (var i = 0; i < slotCount(d); i++) bits.add(bitFor(d, i));
+      });
+      if (lateOnly.indexOf(idx) >= 0) {
+        for (var d2 = 0; d2 < nDays(); d2++) {
+          if (!isWeekend(d2)) continue;
+          hoursFor(d2).forEach(function (h, i) { if (h < 17) bits.add(bitFor(d2, i)); });
+        }
+      }
+      responses[idx] = maskOf(bits);
+    });
+    var mine = new Set();
+    [1, 8, 15, 22].forEach(function (d) {
+      if (d >= nDays()) return;
+      for (var i = 0; i < slotCount(d); i++) mine.add(bitFor(d, i));
+    });
+    busy = mine;
+  }
+
+  function init() {
+    var raw = (location.hash || "").replace(/^#c=/, "");
+    if (raw && raw !== location.hash) {
+      try { cfg = decodeCfg(raw); isExample = false; }
+      catch (e) { cfg = exampleCfg(); isExample = true; }
+    } else {
+      cfg = exampleCfg();
+      isExample = true;
+    }
+    bootState();
+  }
+
+  function pushCfg() { location.hash = "c=" + encodeCfg(cfg); }
+
+  /* ---------- helpers ---------- */
+
+  function dayState(dayIdx, bitSet) {
+    var n = slotCount(dayIdx), out = 0;
+    for (var i = 0; i < n; i++) if (bitSet.has(bitFor(dayIdx, i))) out++;
+    return out === 0 ? "none" : (out === n ? "all" : "some");
+  }
+
+  function dayLabel(dayIdx, longMonth) {
+    var d = addDays(parseYmd(cfg.start), dayIdx);
+    var mon = MONTHS[d.getMonth()];
+    return DOW[(d.getDay() + 6) % 7] + " " + d.getDate() + " " + (longMonth ? mon : mon.slice(0, 3));
+  }
+
+  function whenLabel(pick, longMonth) {
+    return dayLabel(pick.day, longMonth) + ", " + slotText(pick.hour);
+  }
+
+  /* ---------- theme ---------- */
+
+  var SUN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M18.7 5.3l-1.4 1.4M6.7 17.3l-1.4 1.4"/></svg>';
+  var MOON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.8 6.8 0 0 0 10.5 10.5z"/></svg>';
+  var AUTO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor" stroke="none"/></svg>';
+
+  var theme = "system";
+
+  function applyTheme() {
+    var root = document.documentElement;
+    if (theme === "system") root.removeAttribute("data-theme");
+    else root.setAttribute("data-theme", theme);
+    var b = $("themebtn");
+    b.innerHTML = (theme === "light" ? SUN + "<span>Light</span>"
+      : theme === "dark" ? MOON + "<span>Dark</span>" : AUTO + "<span>Auto</span>");
+    b.classList.toggle("on", theme !== "system");
+    b.title = "Colours: " + theme + " — tap to switch";
+  }
+
+  /* ---------- rendering ---------- */
+
+  function renderMast() {
+    $("paxcount").textContent = cfg.names.length + " pax";
+    $("example-notice").hidden = !isExample;
+    var start = parseYmd(cfg.start), end = addDays(start, nDays() - 1);
+    var bits = [];
+    if (cfg.name) bits.push(cfg.name);
+    bits.push(start.getDate() + " " + MONTHS[start.getMonth()].slice(0, 3) +
+      " – " + end.getDate() + " " + MONTHS[end.getMonth()].slice(0, 3) + " " + end.getFullYear());
+    $("groupline").textContent = bits.join("  ·  ");
+  }
+
+  function renderLocked() {
+    var box = $("locked");
+    if (!cfg.pick) { box.hidden = true; return; }
+    box.hidden = false;
+    $("locked-when").textContent = whenLabel(cfg.pick, true);
+    var replies = Object.keys(responses).map(Number);
+    var bit = bitFor(cfg.pick.day, hoursFor(cfg.pick.day).indexOf(cfg.pick.hour));
+    var out = replies.filter(function (i) { return maskHas(responses[i], bit); }).length;
+    $("locked-sub").textContent = (cfg.names.length - out) + " of " + cfg.names.length + " can make it";
+  }
+
+  function renderTabs() {
+    ["mine", "group", "roster"].forEach(function (k) {
+      var on = k === tab;
+      $("tab-" + k).setAttribute("aria-selected", on ? "true" : "false");
+      $("panel-" + k).hidden = !on;
+    });
+  }
+
+  function selectTab(which) {
+    tab = which;
+    renderTabs();
+  }
+
+  function renderWho() {
+    var sel = $("who");
+    sel.innerHTML = "";
+    cfg.names.forEach(function (n, i) {
+      var o = document.createElement("option");
+      o.value = String(i);
+      o.textContent = n;
+      sel.appendChild(o);
+    });
+    sel.value = String(me);
+  }
+
+  function renderCal() {
+    var cal = $("cal");
+    cal.innerHTML = "";
+    var start = parseYmd(cfg.start), t = today();
+
+    var head = document.createElement("div");
+    head.className = "dow";
+    DOW.forEach(function (d) {
+      var s = document.createElement("div");
+      s.textContent = d;
+      head.appendChild(s);
+    });
+    cal.appendChild(head);
+
+    var shownMonth = -1;
+    for (var w = 0; w < cfg.weeks; w++) {
+      var weekStart = addDays(start, w * 7);
+      if (weekStart.getMonth() !== shownMonth) {
+        shownMonth = weekStart.getMonth();
+        var m = document.createElement("div");
+        m.className = "monthrow";
+        m.textContent = MONTHS[shownMonth] + " " + weekStart.getFullYear();
+        cal.appendChild(m);
+      }
+      var row = document.createElement("div");
+      row.className = "week";
+      for (var i = 0; i < 7; i++) {
+        var dayIdx = w * 7 + i;
+        var date = addDays(start, dayIdx);
+        var st = dayState(dayIdx, busy);
+        var b = document.createElement("button");
+        b.className = "day" + (i >= 5 ? " weekend" : "") +
+          (st === "all" ? " all" : st === "some" ? " some" : "") +
+          (dayIdx === selDay ? " sel" : "");
+        b.dataset.day = String(dayIdx);
+
+        var num = document.createElement("span");
+        num.textContent = String(date.getDate());
+        var dot = document.createElement("span");
+        dot.className = "dot";
+        b.appendChild(num);
+        b.appendChild(dot);
+
+        var label = DOW[i] + " " + date.getDate() + " " + MONTHS[date.getMonth()];
+        if (date < t) {
+          b.disabled = true;
+          b.setAttribute("aria-label", label + " (already past)");
+        } else {
+          b.setAttribute("aria-label", label + " — " +
+            (st === "all" ? "whole day gone" : st === "some" ? "some hours gone" : "free"));
+        }
+        row.appendChild(b);
+      }
+      cal.appendChild(row);
+    }
+  }
+
+  function renderSlots() {
+    var hours = hoursFor(selDay);
+    $("slot-eyebrow").textContent = dayLabel(selDay, true) + " · " +
+      hourText(hours[0]) + "–" + hourText(UNTIL) +
+      (isWeekend(selDay) ? " (weekend)" : " (weeknight)");
+
+    var box = $("slots");
+    box.innerHTML = "";
+    hours.forEach(function (h, i) {
+      var bit = bitFor(selDay, i);
+      var c = document.createElement("button");
+      c.className = "chip";
+      c.type = "button";
+      c.textContent = slotText(h);
+      c.dataset.bit = String(bit);
+      c.setAttribute("aria-pressed", busy.has(bit) ? "true" : "false");
+      c.setAttribute("aria-label", slotText(h) + (busy.has(bit) ? " — cannot make it" : " — free"));
+      box.appendChild(c);
+    });
+  }
+
+  function renderMyCode() { $("mycode").value = encodeCode(me, busy); }
+
+  // The hour a day is most likely to work: fewest people out, then closest to 7pm.
+  function bestSlot(dayIdx, replies) {
+    var hours = hoursFor(dayIdx), best = null;
+    hours.forEach(function (h, i) {
+      var bit = bitFor(dayIdx, i);
+      var out = replies.filter(function (idx) { return maskHas(responses[idx], bit); });
+      var score = [out.length, Math.abs(h - 19), h];
+      if (!best || score[0] < best.score[0] ||
+        (score[0] === best.score[0] && score[1] < best.score[1]) ||
+        (score[0] === best.score[0] && score[1] === best.score[1] && score[2] < best.score[2])) {
+        best = { hour: h, out: out.map(function (idx) { return cfg.names[idx]; }), score: score };
+      }
+    });
+    return best;
+  }
+
+  function renderGroup() {
+    var replies = Object.keys(responses).map(Number);
+    var total = cfg.names.length, t = today(), start = parseYmd(cfg.start);
+
+    $("group-hint").textContent = !replies.length
+      ? "Nobody has answered yet. As people hit Done, the good hours float to the top."
+      : replies.length + " out of " + total + " have answered. Each row is the best hour that day. Hit Lock it in once you have picked one.";
+
+    var rows = [];
+    for (var d = 0; d < nDays(); d++) {
+      if (addDays(start, d) < t) continue;
+      var bs = bestSlot(d, replies);
+      rows.push({ day: d, hour: bs.hour, out: bs.out, free: replies.length - bs.out.length, unknown: total - replies.length });
+    }
+    rows.sort(function (a, b) { return a.out.length - b.out.length || a.unknown - b.unknown || a.day - b.day; });
+
+    var shown = rows.slice(0, 8);
+    if (cfg.pick && !shown.some(function (r) { return r.day === cfg.pick.day; })) {
+      var hit = rows.filter(function (r) { return r.day === cfg.pick.day; })[0];
+      if (hit) shown.unshift(hit);
+    }
+
+    var list = $("ranked");
+    list.innerHTML = "";
+
+    if (!shown.length) {
+      var e = document.createElement("li");
+      e.className = "empty";
+      e.textContent = "Every day here has already gone past. Push the start date forward in Roster.";
+      list.appendChild(e);
+    }
+
+    shown.forEach(function (r) {
+      var isPick = !!cfg.pick && cfg.pick.day === r.day && cfg.pick.hour === r.hour;
+      var li = document.createElement("li");
+      li.className = "date " + (r.out.length === 0 ? "clear" : r.out.length <= 2 ? "near" : "hard") +
+        (isPick ? " picked" : "");
+
+      var stripe = document.createElement("div");
+      stripe.className = "stripe";
+
+      var who = document.createElement("div");
+      who.className = "who";
+      var when = document.createElement("div");
+      when.className = "when";
+      when.textContent = dayLabel(r.day) + " · " + slotText(r.hour);
+      var out = document.createElement("div");
+      out.className = "out";
+      if (!replies.length) {
+        out.textContent = "Still waiting on everybody";
+      } else if (!r.out.length) {
+        out.textContent = r.unknown ? "Everyone who answered can make it · " + r.unknown + " to go" : "Everybody can make it";
+      } else {
+        var em = document.createElement("em");
+        em.textContent = "Cannot make it: ";
+        out.appendChild(em);
+        out.appendChild(document.createTextNode(r.out.join(", ")));
+      }
+      who.appendChild(when);
+      who.appendChild(out);
+
+      var end = document.createElement("div");
+      end.className = "end";
+      var tally = document.createElement("div");
+      tally.className = "tally";
+      tally.textContent = r.free + "/" + total;
+      var pk = document.createElement("button");
+      pk.className = "pick";
+      pk.type = "button";
+      pk.dataset.day = String(r.day);
+      pk.dataset.hour = String(r.hour);
+      pk.setAttribute("aria-pressed", isPick ? "true" : "false");
+      pk.textContent = isPick ? "Locked in" : "Lock it in";
+      end.appendChild(tally);
+      end.appendChild(pk);
+
+      li.appendChild(stripe);
+      li.appendChild(who);
+      li.appendChild(end);
+      list.appendChild(li);
+    });
+
+    $("replied-eyebrow").textContent = "Who answered — " + replies.length + " of " + total;
+    var pending = cfg.names.filter(function (n, i) {
+      return !Object.prototype.hasOwnProperty.call(responses, i);
+    });
+    $("waiting").textContent = pending.length
+      ? "Still waiting on: " + pending.join(", ")
+      : "Everybody has answered.";
+
+    var ul = $("replied");
+    ul.innerHTML = "";
+    cfg.names.forEach(function (n, i) {
+      var li2 = document.createElement("li");
+      var inYet = Object.prototype.hasOwnProperty.call(responses, i);
+      li2.className = inYet ? "in" : "";
+      var pip = document.createElement("span");
+      pip.className = "pip";
+      pip.style.background = HUES[i % HUES.length];
+      li2.appendChild(pip);
+      li2.appendChild(document.createTextNode(n));
+      if (inYet) {
+        var x = document.createElement("button");
+        x.className = "x";
+        x.type = "button";
+        x.textContent = "×";
+        x.setAttribute("aria-label", "Take out " + n + "'s answer");
+        x.dataset.drop = String(i);
+        li2.appendChild(x);
+      }
+      ul.appendChild(li2);
+    });
+  }
+
+  function renderRoster() {
+    $("gname").value = cfg.name;
+    $("names").value = cfg.names.join("\n");
+    $("start").value = cfg.start;
+    $("weeks").value = String(cfg.weeks);
+    $("sharelink").textContent = location.href.split("#")[0] + "#c=" + encodeCfg(cfg);
+  }
+
+  function renderAll() {
+    renderMast();
+    renderLocked();
+    renderTabs();
+    renderWho();
+    renderCal();
+    renderSlots();
+    renderMyCode();
+    renderGroup();
+    renderRoster();
+  }
+
+  /* ---------- messages & clipboard ---------- */
+
+  function say(id, text, kind) {
+    var el = $(id);
+    el.textContent = text;
+    el.className = "msg" + (kind ? " " + kind : "");
+  }
+
+  function copy(text, msgId, okText) {
+    var fail = function () {
+      say(msgId, "The clipboard would not open. Select the text above and copy it by hand.", "err");
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { say(msgId, okText, "ok"); }, fail);
+    } else { fail(); }
+  }
+
+  /* ---------- events ---------- */
+
+  function wire() {
+    $("themebtn").addEventListener("click", function () {
+      theme = theme === "system" ? "light" : (theme === "light" ? "dark" : "system");
+      try {
+        if (theme === "system") localStorage.removeItem("10pax:theme");
+        else localStorage.setItem("10pax:theme", theme);
+      } catch (e) { /* storage blocked */ }
+      applyTheme();
+    });
+
+    ["mine", "group", "roster"].forEach(function (k) {
+      $("tab-" + k).addEventListener("click", function () { selectTab(k); });
+    });
+
+    $("cal").addEventListener("click", function (e) {
+      var b = e.target.closest("button.day");
+      if (!b || b.disabled) return;
+      selDay = +b.dataset.day;
+      renderCal();
+      renderSlots();
+      say("slot-msg", "Showing the hours for " + dayLabel(selDay, true) + ".", "");
+    });
+
+    $("slots").addEventListener("click", function (e) {
+      var c = e.target.closest("button.chip");
+      if (!c) return;
+      var bit = +c.dataset.bit;
+      if (busy.has(bit)) busy.delete(bit); else busy.add(bit);
+      c.setAttribute("aria-pressed", busy.has(bit) ? "true" : "false");
+      persist();
+      renderCal();
+      renderMyCode();
+      say("slot-msg", dayLabel(selDay, true) + " updated.", "");
+    });
+
+    $("allday").addEventListener("click", function () {
+      for (var i = 0; i < slotCount(selDay); i++) busy.add(bitFor(selDay, i));
+      persist();
+      renderCal();
+      renderSlots();
+      renderMyCode();
+      say("slot-msg", dayLabel(selDay, true) + " is out, whole day.", "");
+    });
+
+    $("freeday").addEventListener("click", function () {
+      for (var i = 0; i < slotCount(selDay); i++) busy.delete(bitFor(selDay, i));
+      persist();
+      renderCal();
+      renderSlots();
+      renderMyCode();
+      say("slot-msg", dayLabel(selDay, true) + " is free again.", "");
+    });
+
+    $("who").addEventListener("change", function (e) {
+      me = +e.target.value;
+      renderMyCode();
+      persist();
+    });
+
+    $("finish").addEventListener("click", function () {
+      responses[me] = maskOf(busy);
+      persist();
+      renderAll();
+      selectTab("group");
+      var left = cfg.names.length - Object.keys(responses).length;
+      say("group-msg", cfg.names[me] + " is in. " + (left
+        ? "Still waiting on " + left + (left === 1 ? " person." : " people.")
+        : "That is everybody!"), "ok");
+    });
+
+    $("clearmine").addEventListener("click", function () {
+      busy = new Set();
+      delete responses[me];
+      persist();
+      renderAll();
+      say("finish-msg", "All clear. You are free at every hour again, and your answer is out of Group view until you hit Done.", "");
+    });
+
+    $("copycode").addEventListener("click", function () {
+      copy($("mycode").value, "mycode-msg", "Copied. Paste it in the group chat now.");
+    });
+
+    $("addcode").addEventListener("click", function () {
+      var raw = $("paste").value;
+      if (!raw.trim()) { say("paste-msg", "Paste a code in first.", "err"); return; }
+      try {
+        var r = decodeCode(raw, cfg.names.length);
+        responses[r.idx] = r.mask;
+        persist();
+        renderGroup();
+        renderLocked();
+        $("paste").value = "";
+        say("paste-msg", cfg.names[r.idx] + " is in.", "ok");
+      } catch (err) {
+        say("paste-msg", err.message, "err");
+      }
+    });
+
+    $("paste").addEventListener("keydown", function (e) {
+      if (e.key === "Enter") { e.preventDefault(); $("addcode").click(); }
+    });
+
+    $("resetcodes").addEventListener("click", function () {
+      responses = {};
+      persist();
+      renderGroup();
+      renderLocked();
+      say("paste-msg", "Every answer is gone.", "");
+    });
+
+    $("replied").addEventListener("click", function (e) {
+      var x = e.target.closest("button.x");
+      if (!x) return;
+      var idx = +x.dataset.drop, name = cfg.names[idx];
+      delete responses[idx];
+      persist();
+      renderGroup();
+      renderLocked();
+      say("paste-msg", name + " is back on the waiting list.", "");
+    });
+
+    $("ranked").addEventListener("click", function (e) {
+      var b = e.target.closest("button.pick");
+      if (!b) return;
+      var day = +b.dataset.day, hour = +b.dataset.hour;
+      if (cfg.pick && cfg.pick.day === day && cfg.pick.hour === hour) {
+        cfg.pick = null;
+        pushCfg();
+        renderAll();
+        say("pick-msg", "Unlocked. Nothing is fixed yet.", "");
+        return;
+      }
+      cfg.pick = { day: day, hour: hour };
+      pushCfg();
+      renderAll();
+      say("pick-msg", whenLabel(cfg.pick, true) + " it is. Copy the link again from Roster so everybody sees it.", "ok");
+    });
+
+    $("save").addEventListener("click", function () {
+      var names = $("names").value.split("\n").map(function (s) { return s.trim(); }).filter(Boolean).slice(0, 30);
+      if (names.length < 2) { say("save-msg", "Put in at least two names, one per line.", "err"); return; }
+      var start = parseYmd($("start").value);
+      if (!start) { say("save-msg", "Pick a start date first.", "err"); return; }
+      cfg = {
+        name: $("gname").value.trim().slice(0, 60),
+        names: names.map(function (n) { return n.slice(0, 40); }),
+        start: ymd(mondayOf(start)),
+        weeks: Math.min(8, Math.max(1, Math.round(+$("weeks").value || 4))),
+        pick: null
+      };
+      isExample = false;
+      pushCfg();
+      bootState();
+      renderAll();
+      say("save-msg", "Saved. Copy the link below and send it round.", "ok");
+    });
+
+    $("loadexample").addEventListener("click", function () {
+      cfg = exampleCfg();
+      isExample = true;
+      location.hash = "";
+      bootState();
+      renderAll();
+      say("save-msg", "Example is back.", "");
+    });
+
+    $("copylink").addEventListener("click", function () {
+      copy($("sharelink").textContent, "link-msg", "Link copied. Whoever opens it sees the same names and dates.");
+    });
+
+    window.addEventListener("hashchange", function () {
+      init();
+      tab = "mine";
+      renderAll();
+    });
+  }
+
+  try {
+    var ts = localStorage.getItem("10pax:theme");
+    if (ts === "light" || ts === "dark") theme = ts;
+  } catch (e) { /* storage blocked */ }
+
+  applyTheme();
+  init();
+  wire();
+  renderAll();
+
+  try {
+    localStorage.setItem("10pax:probe", "1");
+    localStorage.removeItem("10pax:probe");
+  } catch (e) {
+    $("hosthint").textContent = "This browser blocks storage, so your hours and the answers you collect will not survive closing the tab.";
+  }
+</script>
+</body>
+</html>

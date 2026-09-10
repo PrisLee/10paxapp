@@ -3,6 +3,8 @@
 Find the one day a small friend group is actually free — without asking anyone to
 make an account or post anything publicly.
 
+**Live:** https://prislee.github.io/10paxapp/
+
 ## The problem this is for
 
 A closed group of ~10 friends can't converge on a date: availability is fragmented
@@ -50,6 +52,19 @@ across viewers) is organization-internal — every viewer must be a signed-in me
 the owner's org. That rules it out for friends without accounts, which is precisely
 the group this is for. Passing a short code back through the chat the group already
 uses needs nothing from anybody.
+
+### Building the hosted page
+
+`artifact/10pax.html` is the single source. It is authored as a fragment because the
+Claude Artifact tool supplies the `<!doctype>`/`<head>`/`<body>` skeleton at publish
+time; GitHub Pages serves raw files, so `build.py` rebuilds that skeleton around the
+same source and writes `index.html`. After editing the artifact:
+
+```bash
+python3 build.py     # regenerates index.html
+```
+
+Do not edit `index.html` by hand — it is generated and will be overwritten.
 
 ### Code format
 

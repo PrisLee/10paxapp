@@ -1,0 +1,1147 @@
+<title>10 Pax</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..700&family=IBM+Plex+Mono:wght@400;500&family=Public+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+  :root {
+    --paper: #F6F7F5;
+    --surface: #FFFFFF;
+    --surface-2: #EDEFEC;
+    --ink: #161A18;
+    --ink-2: #4A524E;
+    --ink-3: #78827D;
+    --line: #D9DDD8;
+    --line-2: #C3C9C3;
+    --accent: #2F6B5F;
+    --accent-ink: #23524A;
+    --accent-soft: #DEEBE7;
+    --on-accent: #FBFDFC;
+    --warn: #7E5A00;
+    --warn-soft: #F4E8C9;
+    --bad: #9B3B38;
+    --bad-soft: #F1DCDA;
+    --shadow: 0 1px 2px rgba(22, 26, 24, .06), 0 8px 24px -16px rgba(22, 26, 24, .28);
+    --display: "Bricolage Grotesque", "Trebuchet MS", sans-serif;
+    --body: "Public Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #101413;
+      --surface: #171C1A;
+      --surface-2: #1F2624;
+      --ink: #EDF0EE;
+      --ink-2: #AEB8B3;
+      --ink-3: #7C8781;
+      --line: #2C3431;
+      --line-2: #3B4541;
+      --accent: #74C4B0;
+      --accent-ink: #A8DCCE;
+      --accent-soft: #1C3530;
+      --on-accent: #0C110F;
+      --warn: #D9AE4E;
+      --warn-soft: #33290F;
+      --bad: #E0908A;
+      --bad-soft: #3A2321;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px -16px rgba(0, 0, 0, .7);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --paper: #101413;
+    --surface: #171C1A;
+    --surface-2: #1F2624;
+    --ink: #EDF0EE;
+    --ink-2: #AEB8B3;
+    --ink-3: #7C8781;
+    --line: #2C3431;
+    --line-2: #3B4541;
+    --accent: #74C4B0;
+    --accent-ink: #A8DCCE;
+    --accent-soft: #1C3530;
+    --on-accent: #0C110F;
+    --warn: #D9AE4E;
+    --warn-soft: #33290F;
+    --bad: #E0908A;
+    --bad-soft: #3A2321;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px -16px rgba(0, 0, 0, .7);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 680px;
+    margin: 0 auto;
+    padding-inline: 18px;
+    padding-block: 28px 64px;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+
+  /* ---- masthead ---- */
+  .mast { display: flex; flex-direction: column; gap: 10px; }
+
+  .wordmark {
+    display: flex;
+    align-items: baseline;
+    gap: 9px;
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 30px;
+    letter-spacing: -.02em;
+    line-height: 1;
+    margin: 0;
+  }
+
+  .wordmark .count {
+    font-family: var(--mono);
+    font-weight: 500;
+    font-size: 15px;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border-radius: 3px;
+    padding: 3px 7px;
+    letter-spacing: 0;
+    transform: translateY(-2px);
+  }
+
+  .tagline { margin: 0; color: var(--ink-2); max-width: 46ch; }
+
+  .groupline {
+    font-family: var(--mono);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .09em;
+    color: var(--ink-3);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 10px;
+  }
+
+  /* ---- notice ---- */
+  .notice {
+    display: flex;
+    gap: 11px;
+    align-items: flex-start;
+    background: var(--warn-soft);
+    border-left: 3px solid var(--warn);
+    padding: 12px 14px;
+    color: var(--ink);
+    font-size: 14px;
+  }
+  .notice strong { font-weight: 600; }
+  .notice p { margin: 0; }
+
+  /* ---- tabs ---- */
+  .tabs {
+    display: flex;
+    gap: 2px;
+    background: var(--surface-2);
+    padding: 3px;
+    border-radius: 8px;
+  }
+
+  .tabs button {
+    flex: 1;
+    min-width: 0;
+    appearance: none;
+    border: 0;
+    background: transparent;
+    font: inherit;
+    font-weight: 500;
+    color: var(--ink-2);
+    padding: 8px 6px;
+    border-radius: 6px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .tabs button[aria-selected="true"] {
+    background: var(--surface);
+    color: var(--ink);
+    box-shadow: 0 1px 2px rgba(22, 26, 24, .1);
+  }
+
+  .tabs button:hover:not([aria-selected="true"]) { color: var(--ink); }
+
+  /* ---- panels & sections ---- */
+  .panel { display: flex; flex-direction: column; gap: 22px; }
+  .panel[hidden] { display: none !important; }
+
+  section { display: flex; flex-direction: column; gap: 12px; }
+
+  h2 {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 19px;
+    letter-spacing: -.01em;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  .hint { margin: 0; color: var(--ink-2); font-size: 14px; max-width: 60ch; }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: var(--ink-3);
+    margin: 0;
+  }
+
+  /* ---- calendar ---- */
+  .cal { display: flex; flex-direction: column; gap: 4px; }
+
+  .dow {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 4px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    text-align: center;
+  }
+
+  .monthrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+    padding-top: 8px;
+    border-top: 1px solid var(--line);
+    margin-top: 4px;
+  }
+
+  .week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+
+  .day {
+    appearance: none;
+    font: inherit;
+    font-family: var(--mono);
+    font-size: 14px;
+    font-variant-numeric: tabular-nums;
+    aspect-ratio: 1;
+    max-width: 100%;
+    min-width: 0;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--ink);
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: background-color .12s, border-color .12s;
+  }
+
+  .day:hover:not(:disabled) { border-color: var(--line-2); background: var(--surface-2); }
+
+  .day[aria-pressed="true"] {
+    background: var(--bad-soft);
+    border-color: var(--bad);
+    color: var(--bad);
+    text-decoration: line-through;
+    text-decoration-thickness: 1px;
+  }
+
+  .day.weekend:not([aria-pressed="true"]):not(:disabled) { background: var(--accent-soft); border-color: var(--accent-soft); }
+
+  .day:disabled { color: var(--ink-3); opacity: .4; cursor: default; background: transparent; border-color: transparent; }
+
+  .day.today:not(:disabled) { box-shadow: inset 0 0 0 2px var(--accent); }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    font-size: 13px;
+    color: var(--ink-2);
+  }
+  .legend span { display: flex; align-items: center; gap: 6px; }
+  .swatch { width: 12px; height: 12px; border-radius: 3px; border: 1px solid var(--line); flex: none; }
+  .swatch.free { background: var(--accent-soft); border-color: var(--accent-soft); }
+  .swatch.busy { background: var(--bad-soft); border-color: var(--bad); }
+  .swatch.now { background: var(--surface); box-shadow: inset 0 0 0 2px var(--accent); }
+
+  /* ---- controls ---- */
+  label.field { display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 500; }
+
+  input[type="text"], input[type="date"], input[type="number"], select, textarea {
+    font: inherit;
+    font-size: 15px;
+    color: var(--ink);
+    background: var(--surface);
+    border: 1px solid var(--line-2);
+    border-radius: 6px;
+    padding: 9px 11px;
+    width: 100%;
+  }
+
+  textarea { font-family: var(--mono); font-size: 14px; line-height: 1.7; resize: vertical; }
+
+  .row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .row > * { flex: 1 1 150px; min-width: 0; }
+
+  button.act {
+    appearance: none;
+    font: inherit;
+    font-weight: 600;
+    border-radius: 6px;
+    padding: 10px 16px;
+    cursor: pointer;
+    border: 1px solid var(--accent);
+    background: var(--accent);
+    color: var(--on-accent);
+    white-space: nowrap;
+  }
+
+  button.act:hover { filter: brightness(1.07); }
+  button.act.ghost { background: transparent; color: var(--ink); border-color: var(--line-2); }
+  button.act.ghost:hover { background: var(--surface-2); filter: none; }
+
+  :where(button, input, select, textarea, a):focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  /* ---- code slab ---- */
+  .slab {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    box-shadow: var(--shadow);
+  }
+
+  .codeout {
+    font-family: var(--mono);
+    font-size: 17px;
+    letter-spacing: .04em;
+    word-break: break-all;
+    color: var(--accent-ink);
+    background: var(--accent-soft);
+    border: 0;
+    border-radius: 6px;
+    padding: 12px;
+    text-align: center;
+    width: 100%;
+  }
+
+  .linkout { font-family: var(--mono); font-size: 12px; word-break: break-all; }
+
+  .msg { font-size: 13px; color: var(--ink-2); min-height: 1.2em; margin: 0; }
+  .msg.err { color: var(--bad); }
+  .msg.ok { color: var(--accent-ink); }
+
+  /* ---- ranked dates ---- */
+  ol.dates { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+
+  .date {
+    display: grid;
+    grid-template-columns: 4px 1fr auto;
+    gap: 0 13px;
+    align-items: center;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    overflow: hidden;
+  }
+
+  .date .stripe { align-self: stretch; background: var(--line-2); }
+  .date.clear .stripe { background: var(--accent); }
+  .date.near .stripe { background: var(--warn); }
+  .date.hard .stripe { background: var(--bad); }
+
+  .date .who { padding: 11px 0; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+
+  .date .when {
+    font-family: var(--mono);
+    font-size: 15px;
+    font-variant-numeric: tabular-nums;
+    font-weight: 500;
+  }
+
+  .date .out { font-size: 13px; color: var(--ink-2); }
+  .date .out em { font-style: normal; color: var(--bad); }
+
+  .tally {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+    font-weight: 500;
+    padding: 4px 9px;
+    margin-right: 11px;
+    border-radius: 999px;
+    background: var(--surface-2);
+    color: var(--ink-2);
+    white-space: nowrap;
+  }
+  .date.clear .tally { background: var(--accent-soft); color: var(--accent-ink); }
+  .date.near .tally { background: var(--warn-soft); color: var(--warn); }
+  .date.hard .tally { background: var(--bad-soft); color: var(--bad); }
+
+  /* ---- roster status ---- */
+  ul.people { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+
+  ul.people li {
+    font-size: 13px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--ink-2);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  ul.people li.in {
+    border-color: var(--accent-soft);
+    background: var(--accent-soft);
+    color: var(--accent-ink);
+    font-weight: 500;
+  }
+
+  ul.people li .x {
+    appearance: none;
+    border: 0;
+    background: none;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    color: inherit;
+    opacity: .55;
+    cursor: pointer;
+    line-height: 1;
+  }
+  ul.people li .x:hover { opacity: 1; }
+
+  .empty {
+    border: 1px dashed var(--line-2);
+    border-radius: 7px;
+    padding: 18px 14px;
+    color: var(--ink-2);
+    font-size: 14px;
+    text-align: center;
+  }
+
+  footer {
+    border-top: 1px solid var(--line);
+    padding-top: 16px;
+    color: var(--ink-3);
+    font-size: 13px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  footer p { margin: 0; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+</style>
+
+<div class="wrap">
+  <header class="mast">
+    <h1 class="wordmark">10&nbsp;Pax <span class="count" id="paxcount">10 pax</span></h1>
+    <p class="tagline">Find the one day your whole table is actually free. No accounts, no feed &mdash; just a link and a code you paste back into the group chat.</p>
+    <p class="groupline" id="groupline"></p>
+  </header>
+
+  <div class="notice" id="example-notice" hidden>
+    <p><strong>This is an example group.</strong> Open <em>Roster</em> to put in your own names and dates &mdash; that replaces the example and gives you a link to share.</p>
+  </div>
+
+  <div class="tabs" role="tablist" aria-label="Sections">
+    <button role="tab" id="tab-mine" aria-controls="panel-mine" aria-selected="true">Your days</button>
+    <button role="tab" id="tab-group" aria-controls="panel-group" aria-selected="false">Group view</button>
+    <button role="tab" id="tab-roster" aria-controls="panel-roster" aria-selected="false">Roster</button>
+  </div>
+
+  <!-- ===== YOUR DAYS ===== -->
+  <div class="panel" id="panel-mine" role="tabpanel" aria-labelledby="tab-mine">
+    <section>
+      <h2>Mark the days you <em>can&rsquo;t</em> make</h2>
+      <p class="hint">Everything starts as free. Tap a day to cross it out. Weekends are tinted &mdash; they&rsquo;re usually the easy wins.</p>
+      <label class="field" for="who">
+        You are
+        <select id="who"></select>
+      </label>
+    </section>
+
+    <section>
+      <div class="cal" id="cal"></div>
+      <div class="legend">
+        <span><i class="swatch free"></i> Weekend</span>
+        <span><i class="swatch busy"></i> You can&rsquo;t make it</span>
+        <span><i class="swatch now"></i> Today</span>
+      </div>
+    </section>
+
+    <section>
+      <p class="eyebrow">Step 2 &mdash; send this back</p>
+      <div class="slab">
+        <input class="codeout" id="mycode" readonly aria-label="Your availability code">
+        <div class="row">
+          <button class="act" id="copycode">Copy code</button>
+          <button class="act ghost" id="clearmine">Clear my days</button>
+        </div>
+        <p class="msg" id="mycode-msg">Paste this into the group chat. Whoever is organising drops it into Group view.</p>
+      </div>
+    </section>
+  </div>
+
+  <!-- ===== GROUP VIEW ===== -->
+  <div class="panel" id="panel-group" role="tabpanel" aria-labelledby="tab-group" hidden>
+    <section>
+      <h2>Best dates for the table</h2>
+      <p class="hint" id="group-hint"></p>
+      <ol class="dates" id="ranked"></ol>
+    </section>
+
+    <section>
+      <p class="eyebrow">Who&rsquo;s replied</p>
+      <ul class="people" id="replied"></ul>
+    </section>
+
+    <section>
+      <p class="eyebrow">Add a code from the chat</p>
+      <div class="slab">
+        <label class="field" for="paste">
+          Paste a code
+          <input type="text" id="paste" placeholder="PAX-3-K7X2M9-B" spellcheck="false" autocomplete="off">
+        </label>
+        <div class="row">
+          <button class="act" id="addcode">Add code</button>
+          <button class="act ghost" id="resetcodes">Remove all codes</button>
+        </div>
+        <p class="msg" id="paste-msg"></p>
+      </div>
+    </section>
+  </div>
+
+  <!-- ===== ROSTER ===== -->
+  <div class="panel" id="panel-roster" role="tabpanel" aria-labelledby="tab-roster" hidden>
+    <section>
+      <h2>Who&rsquo;s coming, and when we&rsquo;re looking</h2>
+      <p class="hint">Changing any of this makes a new group and clears the codes already collected, so settle the roster before you send the link out.</p>
+      <label class="field" for="gname">
+        Group name
+        <input type="text" id="gname" placeholder="Thursday Club" autocomplete="off">
+      </label>
+      <label class="field" for="names">
+        One name per line
+        <textarea id="names" rows="10" spellcheck="false"></textarea>
+      </label>
+      <div class="row">
+        <label class="field" for="start">
+          First week starts (Monday)
+          <input type="date" id="start">
+        </label>
+        <label class="field" for="weeks">
+          Weeks to look at
+          <input type="number" id="weeks" min="1" max="8" step="1">
+        </label>
+      </div>
+      <div class="row">
+        <button class="act" id="save">Save roster</button>
+        <button class="act ghost" id="loadexample">Load the example again</button>
+      </div>
+      <p class="msg" id="save-msg"></p>
+    </section>
+
+    <section>
+      <p class="eyebrow">Share this link</p>
+      <div class="slab">
+        <p class="linkout" id="sharelink"></p>
+        <div class="row">
+          <button class="act" id="copylink">Copy link</button>
+        </div>
+        <p class="msg" id="link-msg">The roster and dates travel inside the link &mdash; nobody needs an account to open it.</p>
+      </div>
+    </section>
+  </div>
+
+  <footer>
+    <p><strong>Nothing leaves your devices.</strong> The roster lives in the link; your own days and the codes you collect stay in this browser only.</p>
+    <p id="hosthint"></p>
+  </footer>
+</div>
+
+<script>
+  "use strict";
+
+  var DOW = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  var MONTHS = ["January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"];
+
+  var EXAMPLE_NAMES = ["Priscilla", "Wei Ming", "Sarah", "Daniel", "Hui Ling",
+    "Marcus", "Jia Yi", "Ethan", "Rachel", "Kenji"];
+
+  /* ---------- dates ---------- */
+
+  function ymd(d) {
+    var m = String(d.getMonth() + 1).padStart(2, "0");
+    var day = String(d.getDate()).padStart(2, "0");
+    return d.getFullYear() + "-" + m + "-" + day;
+  }
+
+  function parseYmd(s) {
+    var p = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(s || ""));
+    if (!p) return null;
+    var d = new Date(+p[1], +p[2] - 1, +p[3]);
+    return isNaN(d.getTime()) ? null : d;
+  }
+
+  function mondayOf(d) {
+    var out = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    var shift = (out.getDay() + 6) % 7; // Mon = 0
+    out.setDate(out.getDate() - shift);
+    return out;
+  }
+
+  function addDays(d, n) {
+    var out = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    out.setDate(out.getDate() + n);
+    return out;
+  }
+
+  function today() {
+    var n = new Date();
+    return new Date(n.getFullYear(), n.getMonth(), n.getDate());
+  }
+
+  /* ---------- config encoding ---------- */
+
+  function b64uEncode(str) {
+    var bytes = new TextEncoder().encode(str);
+    var bin = "";
+    for (var i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+    return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  }
+
+  function b64uDecode(s) {
+    var t = String(s).replace(/-/g, "+").replace(/_/g, "/");
+    while (t.length % 4) t += "=";
+    var bin = atob(t);
+    var bytes = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return new TextDecoder().decode(bytes);
+  }
+
+  function encodeCfg(cfg) {
+    return b64uEncode(JSON.stringify({ n: cfg.name, m: cfg.names, s: cfg.start, w: cfg.weeks }));
+  }
+
+  function decodeCfg(raw) {
+    var o = JSON.parse(b64uDecode(raw));
+    if (!Array.isArray(o.m) || !o.m.length) throw new Error("no names");
+    var start = parseYmd(o.s);
+    if (!start) throw new Error("bad start");
+    var weeks = Math.min(8, Math.max(1, Math.round(+o.w || 4)));
+    var names = o.m.map(function (n) { return String(n).slice(0, 40); }).slice(0, 30);
+    return { name: String(o.n || "").slice(0, 60), names: names, start: ymd(mondayOf(start)), weeks: weeks };
+  }
+
+  function exampleCfg() {
+    return {
+      name: "Thursday Club",
+      names: EXAMPLE_NAMES.slice(),
+      start: ymd(mondayOf(today())),
+      weeks: 4
+    };
+  }
+
+  /* ---------- availability codes ---------- */
+
+  function checksum(s) {
+    var h = 7;
+    for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 36;
+    return h.toString(36).toUpperCase();
+  }
+
+  function encodeCode(idx, busySet, nDays) {
+    var mask = 0n;
+    busySet.forEach(function (d) {
+      if (d >= 0 && d < nDays) mask |= (1n << BigInt(d));
+    });
+    var body = idx.toString(36).toUpperCase() + "-" + mask.toString(36).toUpperCase();
+    return "PAX-" + body + "-" + checksum(body);
+  }
+
+  // Returns {idx, mask} or throws an Error whose message is shown to the viewer.
+  function decodeCode(raw, nMembers) {
+    var t = String(raw || "").toUpperCase().replace(/\s+/g, "");
+    t = t.replace(/^PAX-/, "");
+    var parts = t.split("-");
+    if (parts.length !== 3) throw new Error("That code is missing a part. It should look like PAX-3-K7X2M9-B.");
+    var body = parts[0] + "-" + parts[1];
+    if (checksum(body) !== parts[2]) throw new Error("That code looks mistyped — check for a missing character and paste it again.");
+    var idx = parseInt(parts[0], 36);
+    if (isNaN(idx) || idx < 0 || idx >= nMembers) throw new Error("That code is for someone who isn't on this roster. It may be from an older version of the link.");
+    if (!/^[0-9A-Z]+$/.test(parts[1])) throw new Error("That code has characters that don't belong in it.");
+    var mask = 0n;
+    for (var i = 0; i < parts[1].length; i++) {
+      mask = mask * 36n + BigInt(parseInt(parts[1][i], 36));
+    }
+    return { idx: idx, mask: mask };
+  }
+
+  function maskHas(mask, day) {
+    return ((mask >> BigInt(day)) & 1n) === 1n;
+  }
+
+  /* ---------- storage ---------- */
+
+  function cfgKey(cfg) {
+    var s = cfg.names.join("|") + "@" + cfg.start + "/" + cfg.weeks;
+    var h = 0;
+    for (var i = 0; i < s.length; i++) h = (h * 33 + s.charCodeAt(i)) | 0;
+    return "10pax:" + (h >>> 0).toString(36);
+  }
+
+  function load(key, fallback) {
+    try {
+      var raw = localStorage.getItem(key);
+      return raw === null ? fallback : JSON.parse(raw);
+    } catch (e) {
+      return fallback;
+    }
+  }
+
+  function save(key, value) {
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+    } catch (e) { /* private window, or storage blocked — the page still works */ }
+  }
+
+  /* ---------- state ---------- */
+
+  var cfg, isExample, store, me, busy, responses;
+
+  function nDays() { return cfg.weeks * 7; }
+
+  function bootState() {
+    store = cfgKey(cfg);
+    var saved = load(store, null) || {};
+    me = typeof saved.me === "number" && saved.me >= 0 && saved.me < cfg.names.length ? saved.me : 0;
+    busy = new Set(Array.isArray(saved.busy) ? saved.busy.filter(function (d) { return d >= 0 && d < nDays(); }) : []);
+    responses = {};
+    var raw = saved.responses && typeof saved.responses === "object" ? saved.responses : {};
+    Object.keys(raw).forEach(function (k) {
+      var idx = +k;
+      if (idx >= 0 && idx < cfg.names.length && /^[0-9]+$/.test(String(raw[k]))) {
+        responses[idx] = BigInt(raw[k]);
+      }
+    });
+    if (isExample && !Object.keys(responses).length) seedExample();
+  }
+
+  function persist() {
+    var out = {};
+    Object.keys(responses).forEach(function (k) { out[k] = responses[k].toString(); });
+    save(store, { me: me, busy: Array.from(busy), responses: out });
+  }
+
+  // Plausible example replies so the page opens showing what it actually does.
+  function seedExample() {
+    var picks = { 1: [2, 3, 9, 10, 16, 17], 2: [0, 1, 7, 8, 14, 21, 22], 4: [3, 4, 5, 11, 18, 25], 6: [9, 16, 20, 23], 7: [2, 6, 13, 20, 27] };
+    Object.keys(picks).forEach(function (k) {
+      var mask = 0n;
+      picks[k].forEach(function (d) { if (d < nDays()) mask |= (1n << BigInt(d)); });
+      responses[+k] = mask;
+    });
+    busy = new Set([1, 8, 15, 22].filter(function (d) { return d < nDays(); }));
+  }
+
+  /* ---------- init ---------- */
+
+  function init() {
+    var raw = (location.hash || "").replace(/^#c=/, "");
+    if (raw && raw !== location.hash) {
+      try {
+        cfg = decodeCfg(raw);
+        isExample = false;
+      } catch (e) {
+        cfg = exampleCfg();
+        isExample = true;
+      }
+    } else {
+      cfg = exampleCfg();
+      isExample = true;
+    }
+    bootState();
+  }
+
+  /* ---------- rendering ---------- */
+
+  var $ = function (id) { return document.getElementById(id); };
+
+  function renderMast() {
+    $("paxcount").textContent = cfg.names.length + " pax";
+    $("example-notice").hidden = !isExample;
+    var start = parseYmd(cfg.start);
+    var end = addDays(start, nDays() - 1);
+    var span = start.getDate() + " " + MONTHS[start.getMonth()].slice(0, 3) +
+      " – " + end.getDate() + " " + MONTHS[end.getMonth()].slice(0, 3) + " " + end.getFullYear();
+    var bits = [];
+    if (cfg.name) bits.push(cfg.name);
+    bits.push(span);
+    bits.push(cfg.weeks + (cfg.weeks === 1 ? " week" : " weeks"));
+    $("groupline").textContent = bits.join("  ·  ");
+  }
+
+  function renderWho() {
+    var sel = $("who");
+    sel.innerHTML = "";
+    cfg.names.forEach(function (n, i) {
+      var o = document.createElement("option");
+      o.value = String(i);
+      o.textContent = n;
+      sel.appendChild(o);
+    });
+    sel.value = String(me);
+  }
+
+  function renderCal() {
+    var cal = $("cal");
+    cal.innerHTML = "";
+    var start = parseYmd(cfg.start);
+    var t = today();
+
+    var head = document.createElement("div");
+    head.className = "dow";
+    DOW.forEach(function (d) {
+      var s = document.createElement("div");
+      s.textContent = d;
+      head.appendChild(s);
+    });
+    cal.appendChild(head);
+
+    var shownMonth = -1;
+    for (var w = 0; w < cfg.weeks; w++) {
+      var weekStart = addDays(start, w * 7);
+      if (weekStart.getMonth() !== shownMonth) {
+        shownMonth = weekStart.getMonth();
+        var m = document.createElement("div");
+        m.className = "monthrow";
+        m.textContent = MONTHS[shownMonth] + " " + weekStart.getFullYear();
+        cal.appendChild(m);
+      }
+      var row = document.createElement("div");
+      row.className = "week";
+      for (var i = 0; i < 7; i++) {
+        var dayIdx = w * 7 + i;
+        var date = addDays(start, dayIdx);
+        var b = document.createElement("button");
+        b.className = "day" + (i >= 5 ? " weekend" : "");
+        b.textContent = String(date.getDate());
+        b.dataset.day = String(dayIdx);
+        var label = DOW[i] + " " + date.getDate() + " " + MONTHS[date.getMonth()];
+        if (date < t) {
+          b.disabled = true;
+          b.setAttribute("aria-label", label + " (past)");
+        } else {
+          if (date.getTime() === t.getTime()) b.classList.add("today");
+          b.setAttribute("aria-pressed", busy.has(dayIdx) ? "true" : "false");
+          b.setAttribute("aria-label", label);
+        }
+        row.appendChild(b);
+      }
+      cal.appendChild(row);
+    }
+  }
+
+  function renderMyCode() {
+    $("mycode").value = encodeCode(me, busy, nDays());
+  }
+
+  function dayLabel(dayIdx) {
+    var d = addDays(parseYmd(cfg.start), dayIdx);
+    return DOW[(d.getDay() + 6) % 7] + " " + d.getDate() + " " + MONTHS[d.getMonth()].slice(0, 3);
+  }
+
+  function renderGroup() {
+    var replies = Object.keys(responses).map(Number);
+    var total = cfg.names.length;
+    var t = today();
+    var start = parseYmd(cfg.start);
+
+    var hint = $("group-hint");
+    if (!replies.length) {
+      hint.textContent = "No codes yet. Once friends send theirs back, the days everyone can make rise to the top.";
+    } else {
+      hint.textContent = replies.length + " of " + total + " have replied. Ranked by how few people are out — days nobody has spoken for yet are counted as unknown, not free.";
+    }
+
+    var rows = [];
+    for (var d = 0; d < nDays(); d++) {
+      if (addDays(start, d) < t) continue;
+      var out = [];
+      replies.forEach(function (idx) {
+        if (maskHas(responses[idx], d)) out.push(cfg.names[idx]);
+      });
+      rows.push({ day: d, out: out, free: replies.length - out.length, unknown: total - replies.length });
+    }
+
+    rows.sort(function (a, b) {
+      return a.out.length - b.out.length || a.unknown - b.unknown || a.day - b.day;
+    });
+
+    var list = $("ranked");
+    list.innerHTML = "";
+
+    if (!rows.length) {
+      var e = document.createElement("li");
+      e.className = "empty";
+      e.textContent = "Every day in this window is already in the past. Move the start date in Roster.";
+      list.appendChild(e);
+      return;
+    }
+
+    rows.slice(0, 8).forEach(function (r) {
+      var li = document.createElement("li");
+      var grade = r.out.length === 0 ? "clear" : (r.out.length <= 2 ? "near" : "hard");
+      li.className = "date " + grade;
+
+      var stripe = document.createElement("div");
+      stripe.className = "stripe";
+
+      var who = document.createElement("div");
+      who.className = "who";
+      var when = document.createElement("div");
+      when.className = "when";
+      when.textContent = dayLabel(r.day);
+      var out = document.createElement("div");
+      out.className = "out";
+      if (!replies.length) {
+        out.textContent = "Waiting on everybody";
+      } else if (!r.out.length) {
+        out.textContent = r.unknown ? "Nobody who replied is out · " + r.unknown + " still to answer" : "Everyone is free";
+      } else {
+        var em = document.createElement("em");
+        em.textContent = "Out: ";
+        out.appendChild(em);
+        out.appendChild(document.createTextNode(r.out.join(", ")));
+      }
+      who.appendChild(when);
+      who.appendChild(out);
+
+      var tally = document.createElement("div");
+      tally.className = "tally";
+      tally.textContent = r.free + "/" + total + " free";
+
+      li.appendChild(stripe);
+      li.appendChild(who);
+      li.appendChild(tally);
+      list.appendChild(li);
+    });
+
+    var ul = $("replied");
+    ul.innerHTML = "";
+    cfg.names.forEach(function (n, i) {
+      var li = document.createElement("li");
+      var inYet = Object.prototype.hasOwnProperty.call(responses, i);
+      li.className = inYet ? "in" : "";
+      li.appendChild(document.createTextNode(n));
+      if (inYet) {
+        var x = document.createElement("button");
+        x.className = "x";
+        x.type = "button";
+        x.textContent = "×";
+        x.setAttribute("aria-label", "Remove " + n + "'s code");
+        x.dataset.drop = String(i);
+        li.appendChild(x);
+      }
+      ul.appendChild(li);
+    });
+  }
+
+  function renderRoster() {
+    $("gname").value = cfg.name;
+    $("names").value = cfg.names.join("\n");
+    $("start").value = cfg.start;
+    $("weeks").value = String(cfg.weeks);
+    var base = location.href.split("#")[0];
+    $("sharelink").textContent = base + "#c=" + encodeCfg(cfg);
+  }
+
+  function renderAll() {
+    renderMast();
+    renderWho();
+    renderCal();
+    renderMyCode();
+    renderGroup();
+    renderRoster();
+  }
+
+  /* ---------- messages & clipboard ---------- */
+
+  function say(id, text, kind) {
+    var el = $(id);
+    el.textContent = text;
+    el.className = "msg" + (kind ? " " + kind : "");
+  }
+
+  function copy(text, msgId, okText) {
+    var done = function () { say(msgId, okText, "ok"); };
+    var failed = function () { say(msgId, "Couldn't reach the clipboard — select the text above and copy it by hand.", "err"); };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done, failed);
+    } else {
+      failed();
+    }
+  }
+
+  /* ---------- events ---------- */
+
+  function selectTab(which) {
+    ["mine", "group", "roster"].forEach(function (k) {
+      var isOn = k === which;
+      $("tab-" + k).setAttribute("aria-selected", isOn ? "true" : "false");
+      $("panel-" + k).hidden = !isOn;
+    });
+  }
+
+  function wire() {
+    ["mine", "group", "roster"].forEach(function (k) {
+      $("tab-" + k).addEventListener("click", function () { selectTab(k); });
+    });
+
+    $("cal").addEventListener("click", function (e) {
+      var b = e.target.closest("button.day");
+      if (!b || b.disabled) return;
+      var d = +b.dataset.day;
+      if (busy.has(d)) busy.delete(d); else busy.add(d);
+      b.setAttribute("aria-pressed", busy.has(d) ? "true" : "false");
+      renderMyCode();
+      persist();
+      say("mycode-msg", "Code updated — copy it and send it back.", "");
+    });
+
+    $("who").addEventListener("change", function (e) {
+      me = +e.target.value;
+      renderMyCode();
+      persist();
+    });
+
+    $("copycode").addEventListener("click", function () {
+      copy($("mycode").value, "mycode-msg", "Copied. Paste it into the group chat.");
+    });
+
+    $("clearmine").addEventListener("click", function () {
+      busy = new Set();
+      renderCal();
+      renderMyCode();
+      persist();
+      say("mycode-msg", "Cleared — you're free every day in this window.", "");
+    });
+
+    $("addcode").addEventListener("click", function () {
+      var raw = $("paste").value;
+      if (!raw.trim()) { say("paste-msg", "Paste a code first.", "err"); return; }
+      try {
+        var r = decodeCode(raw, cfg.names.length);
+        responses[r.idx] = r.mask;
+        persist();
+        renderGroup();
+        $("paste").value = "";
+        say("paste-msg", "Added " + cfg.names[r.idx] + ".", "ok");
+      } catch (err) {
+        say("paste-msg", err.message, "err");
+      }
+    });
+
+    $("paste").addEventListener("keydown", function (e) {
+      if (e.key === "Enter") { e.preventDefault(); $("addcode").click(); }
+    });
+
+    $("resetcodes").addEventListener("click", function () {
+      responses = {};
+      persist();
+      renderGroup();
+      say("paste-msg", "All codes removed.", "");
+    });
+
+    $("replied").addEventListener("click", function (e) {
+      var x = e.target.closest("button.x");
+      if (!x) return;
+      var idx = +x.dataset.drop;
+      var name = cfg.names[idx];
+      delete responses[idx];
+      persist();
+      renderGroup();
+      say("paste-msg", "Removed " + name + "'s code.", "");
+    });
+
+    $("save").addEventListener("click", function () {
+      var names = $("names").value.split("\n").map(function (s) { return s.trim(); })
+        .filter(Boolean).slice(0, 30);
+      if (names.length < 2) { say("save-msg", "Put in at least two names, one per line.", "err"); return; }
+      var start = parseYmd($("start").value);
+      if (!start) { say("save-msg", "Pick a start date.", "err"); return; }
+      var weeks = Math.min(8, Math.max(1, Math.round(+$("weeks").value || 4)));
+      cfg = {
+        name: $("gname").value.trim().slice(0, 60),
+        names: names.map(function (n) { return n.slice(0, 40); }),
+        start: ymd(mondayOf(start)),
+        weeks: weeks
+      };
+      isExample = false;
+      location.hash = "c=" + encodeCfg(cfg);
+      bootState();
+      renderAll();
+      say("save-msg", "Saved. Copy the link below and send it to the group.", "ok");
+    });
+
+    $("loadexample").addEventListener("click", function () {
+      cfg = exampleCfg();
+      isExample = true;
+      location.hash = "";
+      bootState();
+      renderAll();
+      say("save-msg", "Example group loaded.", "");
+    });
+
+    $("copylink").addEventListener("click", function () {
+      copy($("sharelink").textContent, "link-msg", "Link copied. Anyone who opens it sees the same roster and dates.");
+    });
+
+    window.addEventListener("hashchange", function () {
+      init();
+      renderAll();
+      selectTab("mine");
+    });
+  }
+
+  init();
+  wire();
+  renderAll();
+
+  try {
+    localStorage.setItem("10pax:probe", "1");
+    localStorage.removeItem("10pax:probe");
+  } catch (e) {
+    $("hosthint").textContent = "This browser is blocking storage, so your days and collected codes won't be remembered after you close the tab.";
+  }
+</script>

@@ -6,7 +6,7 @@
 <title>10 Pax</title>
 <meta name="description" content="Find the one hour your whole group is actually free.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%97%93%EF%B8%8F%3C/text%3E%3C/svg%3E">
-<script src="firebase-config.js"></script>
+<script src="pax-api.js"></script>
 <style>
   :root { color-scheme: light dark; }
   body { margin: 0; font: 14px system-ui, sans-serif; background: #fafaf9; }
@@ -745,10 +745,11 @@
       </label>
       <p class="eyebrow">Who is coming</p>
       <ul class="roster" id="rosterlist"></ul>
-      <div class="row">
+      <div class="row" id="addrow">
         <input type="text" id="newname" placeholder="Add a name" autocomplete="off">
         <button class="act" id="addmember">Add</button>
       </div>
+      <p class="hint" id="ownernote" hidden></p>
       <div class="row">
         <label class="field" for="start">
           First week starts (Monday)
@@ -800,9 +801,6 @@
     "#D4479A", "#6FA82B", "#E9701E", "#00A2B8", "#8B5CF6"];
 
   var WEEKDAY_FROM = 18, WEEKEND_FROM = 10, UNTIL = 22;
-
-  // gstatic pins exact patch versions, so try a few and use whichever loads.
-  var SDK_VERSIONS = ["11.1.0", "10.14.1", "10.12.5"];
 
   var $ = function (id) { return document.getElementById(id); };
 
@@ -1057,7 +1055,7 @@
   /* ---------- state ---------- */
 
   var cfg, isExample, store, me, busy, responses, tab = "mine", selDay = 0;
-  var cloud = { on: false, gid: null, db: null, fs: null, unsub: [], gone: false };
+  var cloud = { on: false, up: false, gid: null, gone: false };
   var wantGid = null;
 
   function nDays() { return cfg.weeks * 7; }
@@ -1127,13 +1125,19 @@
     var g = /^#g=([a-z0-9]{6,40})$/.exec(h);
     wantGid = g ? g[1] : null;
     if (wantGid) {
-      // Real config arrives from Firestore; show something sane until it does.
+      // The real group arrives from the server. Until it does, hold an empty
+      // shell that still renders: every one of these has to be set, or the
+      // first render throws and the fetch below never runs.
       cfg = exampleCfg();
       cfg.name = "";
       cfg.members = [];
       isExample = false;
       responses = {};
       offsets = buildOffsets();
+      me = null;
+      busy = new Set();
+      selDay = firstFutureDay();
+      store = "10pax:g:" + wantGid;
       return;
     }
     var raw = h.replace(/^#c=/, "");
@@ -1152,69 +1156,99 @@
     if (location.hash.replace(/^#/, "") !== want) location.hash = want;
   }
 
-  /* ---------- firebase ---------- */
+  /* ---------- api ---------- */
 
-  function loadFirebase() {
-    var conf = window.PAX_FIREBASE;
-    if (!conf || !conf.apiKey || !conf.projectId) return Promise.resolve(null);
-    var vers = conf.sdkVersion ? [conf.sdkVersion] : SDK_VERSIONS;
-    var attempt = function (i) {
-      if (i >= vers.length) return Promise.resolve(null);
-      var base = "https://www.gstatic.com/firebasejs/" + vers[i] + "/";
-      return Promise.all([
-        import(base + "firebase-app.js"),
-        import(base + "firebase-firestore.js")
-      ]).then(function (mods) {
-        var app = mods[0].initializeApp(conf);
-        return { db: mods[1].getFirestore(app), fs: mods[1] };
-      }, function () { return attempt(i + 1); });
-    };
-    return attempt(0);
+  // Same origin when the Worker serves the page. window.PAX_API lets the
+  // GitHub Pages mirror point at the deployed Worker instead.
+  var API = String(window.PAX_API || "").replace(/\/+$/, "") || "/api";
+
+  var poll = { timer: null, last: 0 };
+
+  function tokKey(gid) { return "10pax:tok:" + gid; }
+  function toks(gid) { return load(tokKey(gid), null) || {}; }
+  function putToks(gid, obj) { save(tokKey(gid), obj); }
+
+  function amOwner() { return !!(cloud.gid && toks(cloud.gid).owner); }
+
+  function authHeaders() {
+    var h = { "content-type": "application/json" };
+    if (!cloud.gid) return h;
+    var t = toks(cloud.gid);
+    if (t.owner) h["x-pax-owner"] = t.owner;
+    if (me && t.claims && t.claims[me]) h["x-pax-claim"] = t.claims[me];
+    return h;
   }
 
-  function gdoc() { return cloud.fs.doc(cloud.db, "groups", cloud.gid); }
-  function adoc(id) { return cloud.fs.doc(cloud.db, "groups", cloud.gid, "answers", id); }
-  function acol() { return cloud.fs.collection(cloud.db, "groups", cloud.gid, "answers"); }
-
-  function stopWatch() {
-    cloud.unsub.forEach(function (u) { try { u(); } catch (e) { /* already gone */ } });
-    cloud.unsub = [];
-  }
-
-  function watchGroup() {
-    stopWatch();
-    cloud.unsub.push(cloud.fs.onSnapshot(gdoc(), function (snap) {
-      if (!snap.exists()) {
-        cloud.gone = true;
-        renderCloudNotice();
-        return;
-      }
-      cloud.gone = false;
-      var incoming = cfgFromCloud(snap.data());
-      var weeksChanged = !cfg || cfg.weeks !== incoming.weeks || cfg.start !== incoming.start;
-      cfg = incoming;
-      offsets = buildOffsets();
-      if (weeksChanged) {
-        busy = new Set(Array.from(busy).filter(function (b) { return b < totalBits(); }));
-      }
-      if (!validMe()) me = cfg.members.length ? cfg.members[0].id : null;
-      selDay = cfg.pick ? cfg.pick.day : firstFutureDay();
-      renderAll();
-    }, function () { setSync("error"); }));
-
-    cloud.unsub.push(cloud.fs.onSnapshot(acol(), function (qs) {
-      responses = {};
-      qs.forEach(function (d) {
-        var v = d.data() || {};
-        if (/^[0-9]+$/.test(String(v.mask))) responses[d.id] = BigInt(v.mask);
+  function req(path, opts) {
+    opts = opts || {};
+    return fetch(API + path, {
+      method: opts.method || "GET",
+      headers: authHeaders(),
+      body: opts.body ? JSON.stringify(opts.body) : undefined
+    }).then(function (res) {
+      return res.text().then(function (txt) {
+        var data = null;
+        try { data = txt ? JSON.parse(txt) : null; } catch (e) { /* not json */ }
+        if (!res.ok) throw new Error((data && data.error) || ("the server said " + res.status));
+        return data;
       });
-      renderAll();
-    }, function () { setSync("error"); }));
+    });
+  }
+
+  function applyState(st) {
+    if (!st || !st.group) return;
+    cloud.gone = false;
+    var incoming = {
+      name: st.group.name || "",
+      members: (st.members || []).map(function (m) { return { id: m.id, name: m.name, claimed: !!m.claimed }; }),
+      start: st.group.start,
+      weeks: st.group.weeks,
+      pick: st.group.pick || null
+    };
+    var moved = !cfg || cfg.start !== incoming.start || cfg.weeks !== incoming.weeks;
+    cfg = incoming;
+    offsets = buildOffsets();
+    if (moved) busy = new Set(Array.from(busy).filter(function (b) { return b < totalBits(); }));
+    responses = {};
+    Object.keys(st.answers || {}).forEach(function (mid) {
+      if (/^[0-9]+$/.test(String(st.answers[mid]))) responses[mid] = BigInt(st.answers[mid]);
+    });
+    if (!validMe()) me = cfg.members.length ? cfg.members[0].id : null;
+    selDay = cfg.pick ? cfg.pick.day : firstFutureDay();
+    poll.last = st.group.updatedAt;
+    renderAll();
+  }
+
+  function refresh() {
+    if (!cloud.on) return Promise.resolve();
+    return req("/groups/" + cloud.gid).then(function (st) {
+      if (st.group.updatedAt !== poll.last) applyState(st);
+      setSync();
+    }, function (err) {
+      if (/said 404/.test(err.message)) { cloud.gone = true; renderCloudNotice(); return; }
+      setSync("error");
+    });
+  }
+
+  function startPoll() {
+    stopPoll();
+    poll.timer = setInterval(function () {
+      if (document.hidden || !cloud.on) return;
+      refresh();
+    }, 8000);
+  }
+
+  function stopPoll() {
+    if (poll.timer) clearInterval(poll.timer);
+    poll.timer = null;
   }
 
   function saveGroup() {
     if (!cloud.on) { pushHash(); renderAll(); return Promise.resolve(); }
-    return cloud.fs.setDoc(gdoc(), groupPayload());
+    return req("/groups/" + cloud.gid, {
+      method: "PATCH",
+      body: { name: cfg.name, start: cfg.start, weeks: cfg.weeks, pick: cfg.pick }
+    }).then(applyState);
   }
 
   function saveAnswer() {
@@ -1223,10 +1257,25 @@
       persist();
       return Promise.resolve();
     }
-    return cloud.fs.setDoc(adoc(me), {
-      mask: maskOf(busy).toString(),
-      name: memberName(me),
-      updatedAt: Date.now()
+    var put = function () {
+      return req("/groups/" + cloud.gid + "/answers/" + me, {
+        method: "PUT", body: { mask: maskOf(busy).toString() }
+      }).then(applyState);
+    };
+    var t = toks(cloud.gid);
+    if (t.claims && t.claims[me]) return put();
+    // First time answering as this person from this device: claim the name, so
+    // nobody else can overwrite the answer later.
+    return req("/groups/" + cloud.gid + "/members/" + me + "/claim", { method: "POST" }).then(function (r) {
+      var cur = toks(cloud.gid);
+      cur.claims = cur.claims || {};
+      cur.claims[me] = r.claimToken;
+      putToks(cloud.gid, cur);
+      return put();
+    }, function () {
+      // Claimed elsewhere already. The organiser may still write; anyone else
+      // gets the server's refusal, which is the message we want to show.
+      return put();
     });
   }
 
@@ -1236,41 +1285,59 @@
       persist();
       return Promise.resolve();
     }
-    return cloud.fs.deleteDoc(adoc(id));
+    if (!Object.prototype.hasOwnProperty.call(responses, id)) return Promise.resolve();
+    return req("/groups/" + cloud.gid + "/answers/" + id, { method: "DELETE" }).then(applyState);
   }
 
   function goCloud() {
-    var gid = randomId(22);
-    var payload = groupPayload();
-    return cloud.fs.setDoc(cloud.fs.doc(cloud.db, "groups", gid), payload).then(function () {
+    // Server mints fresh member ids, so carry local answers over by position.
+    var carry = Object.keys(responses).map(function (id) {
+      return { idx: memberIndex(id), mask: responses[id].toString() };
+    }).filter(function (a) { return a.idx >= 0; });
+
+    return req("/groups", {
+      method: "POST",
+      body: {
+        name: cfg.name,
+        members: cfg.members.map(function (m) { return m.name; }),
+        start: cfg.start,
+        weeks: cfg.weeks
+      }
+    }).then(function (st) {
+      var gid = st.group.id;
+      putToks(gid, { owner: st.ownerToken, claims: {} });
       cloud.gid = gid;
       cloud.on = true;
       isExample = false;
       store = "10pax:g:" + gid;
-      // Carry over whatever answers this device already had.
-      var carry = Object.keys(responses).map(function (id) {
-        return cloud.fs.setDoc(cloud.fs.doc(cloud.db, "groups", gid, "answers", id), {
-          mask: responses[id].toString(), name: memberName(id), updatedAt: Date.now()
-        });
-      });
-      return Promise.all(carry);
-    }).then(function () {
+      return Promise.all(carry.map(function (a) {
+        var m = st.members[a.idx];
+        if (!m) return Promise.resolve();
+        return req("/groups/" + gid + "/answers/" + m.id, { method: "PUT", body: { mask: a.mask } });
+      })).then(function () { return req("/groups/" + gid); });
+    }).then(function (st) {
+      applyState(st);
       pushHash();
-      watchGroup();
+      startPoll();
       setSync();
-      renderAll();
     });
   }
 
+  function addMemberRemote(name) {
+    return req("/groups/" + cloud.gid + "/members", { method: "POST", body: { name: name } }).then(applyState);
+  }
+
+  function renameMemberRemote(id, name) {
+    return req("/groups/" + cloud.gid + "/members/" + id, { method: "PATCH", body: { name: name } }).then(applyState);
+  }
+
+  function removeMemberRemote(id) {
+    return req("/groups/" + cloud.gid + "/members/" + id, { method: "DELETE" }).then(applyState);
+  }
+
   function dropGroup() {
-    return cloud.fs.getDocs(acol()).then(function (qs) {
-      var kills = [];
-      qs.forEach(function (d) { kills.push(cloud.fs.deleteDoc(d.ref)); });
-      return Promise.all(kills);
-    }).then(function () {
-      return cloud.fs.deleteDoc(gdoc());
-    }).then(function () {
-      stopWatch();
+    return req("/groups/" + cloud.gid, { method: "DELETE" }).then(function () {
+      stopPoll();
       cloud.on = false;
       cloud.gid = null;
       cloud.gone = false;
@@ -1279,6 +1346,25 @@
       location.hash = "";
       bootState();
       setSync();
+      renderAll();
+    });
+  }
+
+  function openGroup(gid) {
+    cloud.gid = gid;
+    store = "10pax:g:" + gid;
+    var saved = load(store, null) || {};
+    if (typeof saved.me === "string") me = saved.me;
+    busy = new Set(Array.isArray(saved.busy) ? saved.busy : []);
+    return req("/groups/" + gid).then(function (st) {
+      cloud.on = true;
+      applyState(st);
+      startPoll();
+      setSync();
+    }, function (err) {
+      cloud.on = false;
+      if (/said 404/.test(err.message)) cloud.gone = true;
+      setSync("error");
       renderAll();
     });
   }
@@ -1327,7 +1413,7 @@
     if (state === "error") {
       el.textContent = "Offline";
       el.className = "sync local";
-      el.title = "The database could not be reached. Changes are staying on this device.";
+      el.title = "The server could not be reached. Showing the last thing it told us.";
       return;
     }
     if (cloud.on) {
@@ -1337,7 +1423,7 @@
     } else {
       el.textContent = "This device";
       el.className = "sync local";
-      el.title = "No shared database yet, so answers travel as codes.";
+      el.title = "No shared group yet, so answers travel as codes.";
     }
   }
 
@@ -1351,8 +1437,9 @@
     }
     if (wantGid && !cloud.on) {
       n.hidden = false;
-      n.innerHTML = "<p><strong>Cannot reach this group.</strong> The link points at a shared group, " +
-        "but the database did not answer. Check your connection and reload.</p>";
+      n.innerHTML = cloud.up
+        ? "<p><strong>Cannot reach this group.</strong> The link points at a shared group, but the server did not answer. Check your connection and reload.</p>"
+        : "<p><strong>This link needs the shared version.</strong> It points at a group on the server, but this copy of the app has no server behind it. Open the link on the deployed site instead.</p>";
       return;
     }
     n.hidden = true;
@@ -1643,12 +1730,25 @@
       ul.appendChild(li);
     });
 
+    // In a shared group only the organiser edits the roster, and the server
+    // enforces it. Hiding the controls just saves everyone a refusal.
+    var mayEdit = !cloud.on || amOwner();
+    $("addrow").hidden = !mayEdit;
+    Array.prototype.forEach.call(ul.querySelectorAll("input.rname"), function (i) { i.disabled = !mayEdit; });
+    Array.prototype.forEach.call(ul.querySelectorAll("button.drop"), function (b) { b.hidden = !mayEdit; });
+    $("gname").disabled = !mayEdit;
+    $("start").disabled = !mayEdit;
+    $("weeks").disabled = !mayEdit;
+    $("save").hidden = !mayEdit;
+    $("ownernote").hidden = mayEdit;
+    $("ownernote").textContent = "Whoever set this group up is the only one who can change the names or the dates. You can still mark your own hours in Your days.";
+
     var base = location.href.split("#")[0];
     $("sharelink").textContent = base + "#" + (cloud.on ? "g=" + cloud.gid : "c=" + encodeCfg(cfg));
 
-    var canCloud = !!cloud.db && !cloud.on;
+    var canCloud = cloud.up && !cloud.on;
     $("gocloud").hidden = !canCloud;
-    $("dropgroup").hidden = !cloud.on;
+    $("dropgroup").hidden = !(cloud.on && amOwner());
     $("link-msg").textContent = cloud.on
       ? "Everybody who opens this link sees the same group, and answers land here by themselves."
       : (canCloud
@@ -1677,7 +1777,9 @@
   }
 
   function oops(id, err) {
-    say(id, "That did not save: " + (err && err.message ? err.message : "the database refused it") + ".", "err");
+    var why = (err && err.message) ? err.message : "the server refused it";
+    // Server messages are already whole sentences; don't hand out "device..".
+    say(id, /[.!?]$/.test(why) ? why : why + ".", "err");
   }
 
   function copy(text, msgId, okText) {
@@ -1832,9 +1934,12 @@
       var name = $("newname").value.trim();
       if (!name) { say("save-msg", "Type a name first.", "err"); return; }
       if (cfg.members.length >= 30) { say("save-msg", "Thirty people is the limit.", "err"); return; }
-      cfg.members = cfg.members.concat([{ id: randomId(8), name: name.slice(0, 40) }]);
       $("newname").value = "";
-      saveGroup().then(function () {
+      var done = cloud.on ? addMemberRemote(name.slice(0, 40)) : (function () {
+        cfg.members = cfg.members.concat([{ id: randomId(8), name: name.slice(0, 40) }]);
+        return saveGroup();
+      })();
+      done.then(function () {
         renderAll();
         say("save-msg", name + " is on the list.", "ok");
       }, function (err) { oops("save-msg", err); });
@@ -1849,10 +1954,13 @@
       if (!inp) return;
       var id = inp.dataset.id, name = inp.value.trim();
       if (!name) { renderRoster(); return; }
-      cfg.members = cfg.members.map(function (m) {
-        return m.id === id ? { id: m.id, name: name.slice(0, 40) } : m;
-      });
-      saveGroup().then(function () {
+      var done = cloud.on ? renameMemberRemote(id, name.slice(0, 40)) : (function () {
+        cfg.members = cfg.members.map(function (m) {
+          return m.id === id ? { id: m.id, name: name.slice(0, 40) } : m;
+        });
+        return saveGroup();
+      })();
+      done.then(function () {
         renderAll();
         say("save-msg", "Renamed to " + name + ". Their answer stayed put.", "ok");
       }, function (err) { oops("save-msg", err); });
@@ -1863,9 +1971,17 @@
       if (!b) return;
       var id = b.dataset.remove, name = memberName(id);
       if (cfg.members.length <= 2) { say("save-msg", "Keep at least two people on the list.", "err"); return; }
-      cfg.members = cfg.members.filter(function (m) { return m.id !== id; });
-      if (me === id) me = cfg.members[0].id;
-      Promise.all([saveGroup(), dropAnswer(id)]).then(function () {
+      var done;
+      if (cloud.on) {
+        // The server drops their answer in the same transaction.
+        done = removeMemberRemote(id);
+      } else {
+        cfg.members = cfg.members.filter(function (m) { return m.id !== id; });
+        if (me === id) me = cfg.members[0].id;
+        done = Promise.all([saveGroup(), dropAnswer(id)]);
+      }
+      done.then(function () {
+        if (!validMe()) me = cfg.members.length ? cfg.members[0].id : null;
         renderAll();
         say("save-msg", name + " is off the list.", "ok");
       }, function (err) { oops("save-msg", err); });
@@ -1910,7 +2026,7 @@
     });
 
     $("loadexample").addEventListener("click", function () {
-      if (cloud.on) { say("save-msg", "This is a shared group. Delete it first if you want the example back.", "err"); return; }
+      if (cloud.on) { say("save-msg", "This is a shared group. Open the plain link or delete the group to get the example back.", "err"); return; }
       cfg = exampleCfg();
       isExample = true;
       location.hash = "";
@@ -1948,19 +2064,14 @@
     window.addEventListener("hashchange", function () {
       var g = /^#g=([a-z0-9]{6,40})$/.exec(location.hash || "");
       if (g && g[1] === cloud.gid) return;
-      stopWatch();
+      stopPoll();
       cloud.on = false;
       cloud.gid = null;
       init();
       tab = "mine";
-      if (wantGid && cloud.db) {
-        cloud.gid = wantGid;
-        cloud.on = true;
-        store = "10pax:g:" + wantGid;
-        watchGroup();
-      }
       setSync();
       renderAll();
+      if (wantGid && cloud.up) openGroup(wantGid);
     });
   }
 
@@ -1977,22 +2088,22 @@
   setSync();
   renderAll();
 
-  loadFirebase().then(function (api) {
-    if (!api) { setSync(); renderCloudNotice(); return; }
-    cloud.db = api.db;
-    cloud.fs = api.fs;
-    if (wantGid) {
-      cloud.gid = wantGid;
-      cloud.on = true;
-      store = "10pax:g:" + wantGid;
-      var saved = load(store, null) || {};
-      if (typeof saved.me === "string") me = saved.me;
-      busy = new Set(Array.isArray(saved.busy) ? saved.busy : []);
-      watchGroup();
-    }
+  // Is there an API behind this page at all? If not, stay on links and codes.
+  req("/health").then(function () {
+    cloud.up = true;
     setSync();
+    if (wantGid) return openGroup(wantGid);
     renderAll();
-  }, function () { setSync("error"); });
+  }, function () {
+    cloud.up = false;
+    setSync();
+    renderCloudNotice();
+    renderAll();
+  });
+
+  document.addEventListener("visibilitychange", function () {
+    if (!document.hidden) refresh();
+  });
 
   try {
     localStorage.setItem("10pax:probe", "1");

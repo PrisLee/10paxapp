@@ -1,0 +1,17 @@
+{
+  "name": "10paxapp",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Find the one hour a small friend group is actually free",
+  "scripts": {
+    "build": "python3 build.py",
+    "dev": "npm run build && wrangler dev",
+    "deploy": "npm run build && wrangler deploy",
+    "db:local": "wrangler d1 execute pax --local --file=schema.sql",
+    "db:remote": "wrangler d1 execute pax --remote --file=schema.sql",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "wrangler": "^4.130.0"
+  }
+}

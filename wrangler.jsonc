@@ -1,0 +1,30 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "tenpax",
+  "main": "worker/index.js",
+  // Today's date, per Cloudflare's guidance for new Workers.
+  "compatibility_date": "2026-09-10",
+
+  // The Worker serves the app and the API from one origin, so the browser
+  // never makes a cross-origin request. Only /api/* reaches the Worker code;
+  // everything else is served straight from ./public.
+  "assets": {
+    "directory": "./public",
+    "not_found_handling": "404-page",
+    "run_worker_first": ["/api/*"]
+  },
+
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "pax",
+      "database_id": "PUT_YOUR_DATABASE_ID_HERE"
+    }
+  ],
+
+  // Both of these are needed: the top-level flag alone does not turn on traces.
+  "observability": {
+    "enabled": true,
+    "traces": { "enabled": true }
+  }
+}

@@ -3,7 +3,8 @@
 Find the one day a small friend group is actually free — without asking anyone to
 make an account or post anything publicly.
 
-**Live:** https://prislee.github.io/10paxapp/
+**Live:** https://prislee.github.io/10paxapp/ (link-and-codes mode until the Worker is
+deployed — see [SETUP.md](SETUP.md))
 
 ## The problem this is for
 
@@ -61,12 +62,13 @@ time; GitHub Pages serves raw files, so `build.py` rebuilds that skeleton around
 same source and writes `index.html`. After editing the artifact:
 
 ```bash
-python3 build.py     # regenerates index.html
+python3 build.py     # regenerates both generated pages
+npm run dev          # local Worker + local D1 at http://localhost:8787
+npm run deploy       # build, then wrangler deploy
 ```
 
-Do not edit `index.html` by hand — it is generated and will be overwritten. The build
-also injects `firebase-config.js`, so the hosted page picks up the database while the
-artifact copy stays in link-and-codes mode.
+Do not edit `index.html` or `public/index.html` by hand — both are generated from
+`artifact/10pax.html` and will be overwritten.
 
 ### Code format
 
@@ -77,30 +79,58 @@ laid end to end from the roster's start Monday — so a code is only meaningful 
 the roster it was generated from. A mistyped or stale code is
 rejected rather than silently misread.
 
+## Layout
+
+    artifact/10pax.html   the app: one file, no build step, no dependencies
+    worker/index.js       the API, and the Worker that serves the app
+    schema.sql            D1 tables
+    wrangler.jsonc        Worker config (assets + D1 binding + observability)
+    build.py              wraps the artifact fragment into standalone pages
+    public/index.html     generated: served by the Worker
+    index.html            generated: the GitHub Pages mirror
+
 ## Two modes
 
 The badge in the top corner says which one you are in.
 
-**THIS DEVICE** (no Firebase config) — the roster rides inside the share link and
-answers travel as copy-paste codes. Every CRUD operation works, but only in the
-browser doing it. This is also the only mode the claude.ai artifact copy can run, since
-its CSP blocks Google's CDN.
+**THIS DEVICE** — no API behind the page. The roster rides inside the share link and
+answers travel as copy-paste codes. Every CRUD operation works, but only in the browser
+doing it. This is the mode the claude.ai artifact copy runs in, and the Pages mirror
+until `pax-api.js` points at a deployed Worker.
 
-**LIVE** (Firebase config filled in) — one shared Firestore group. Answers arrive on
-their own and Group view updates as people reply; the codes disappear from the UI
-entirely. See [SETUP.md](SETUP.md) — about five minutes in the Firebase console.
+**LIVE** — one shared group in D1. Answers arrive on their own, Group view updates as
+people reply, the codes disappear from the UI, and the server enforces who may change
+what. See [SETUP.md](SETUP.md).
 
-The same source file does both. `loadFirebase()` resolves `null` when there is no
-config or the SDK cannot load, and every write goes through `saveGroup` / `saveAnswer` /
-`dropAnswer`, which branch on `cloud.on`.
+One source file does both: the app probes `GET /api/health` at boot, and every write
+goes through `saveGroup` / `saveAnswer` / `dropAnswer` / `addMemberRemote` and friends,
+which branch on `cloud.on`.
 
 ## Data model
 
-    groups/{groupId}                      name, members[{id,name}], start, weeks, pick, updatedAt
-    groups/{groupId}/answers/{memberId}   mask, name, updatedAt
+    groups    id, name, start, weeks, pick_day, pick_hour, owner_hash, created_at, updated_at
+    members   group_id, id, name, ord, claim_hash
+    answers   group_id, member_id, mask, updated_at
 
-Members are entities with stable ids, not names in a list, so renaming somebody keeps
-their answer attached. `mask` is the blocked-hours bitmask as a decimal string.
+Members are rows with stable ids, not names in a list, so renaming somebody keeps their
+answer attached. `mask` is the blocked-hours bitmask as a decimal string.
+
+## API
+
+    POST   /api/groups                                  create            -> group + ownerToken
+    GET    /api/groups/:gid                             read                anyone with the link
+    PATCH  /api/groups/:gid                             name/dates/pick   [owner]
+    DELETE /api/groups/:gid                             delete            [owner]
+    POST   /api/groups/:gid/members                     add               [owner]
+    PATCH  /api/groups/:gid/members/:mid                rename            [owner]
+    DELETE /api/groups/:gid/members/:mid                remove            [owner]
+    POST   /api/groups/:gid/members/:mid/claim          claim a name        first device wins
+    PUT    /api/groups/:gid/answers/:mid                answer            [claim or owner]
+    DELETE /api/groups/:gid/answers/:mid                withdraw          [claim or owner]
+    DELETE /api/groups/:gid/answers                     clear all         [owner]
+
+Updates reach other people by polling `GET /api/groups/:gid` every 8 seconds, only while
+a tab is open and visible.
 
 | | Create | Read | Update | Delete |
 |---|---|---|---|---|
@@ -118,15 +148,21 @@ local storage key excludes the member list.
 
 ### Access model
 
-"The link is the key": a group id is a long random string that lives only in the share
-link, and holding the link grants read and write. [`firestore.rules`](firestore.rules)
-makes group ids undiscoverable (`get` allowed, `list` denied, so the collection cannot
-be enumerated) and caps the shape and size of writes. It authenticates nobody — the
-trade-off for friends who will not sign up for anything. SETUP.md spells out the limits.
+Enforced in the Worker, so editing the page gets you nowhere:
+
+- **Reading** is open to anyone with the link. Group ids are 22 random characters and
+  are never listed, so they cannot be guessed or enumerated.
+- **Answering as a name** belongs to the first device to claim it. Claiming returns a
+  token; only that token can change or withdraw that answer.
+- **The roster, the dates and deleting the group** need the owner token, handed out once
+  when the group is created.
+
+Tokens are compared as SHA-256 hashes in constant time. The honest limits: anyone with
+the link can read everything, and losing the owner token (clearing browser data) means
+losing the ability to edit that group.
 
 ## Not built yet
 
-- Real per-person identity, which is what would stop someone answering as somebody
-  else and make a leaked link revocable.
-- Photo sharing. Dropped from scope; a closed group album needs that identity work
-  first.
+- Accounts. Without them a lost owner token is unrecoverable and a claimed name cannot
+  be reassigned without removing and re-adding the person.
+- Photo sharing. Dropped from scope.

@@ -1,97 +1,122 @@
-# Turning on the shared database
+# Deploying 10 Pax to Cloudflare
 
-Without this, 10 Pax works exactly as it always has: the roster rides inside the share
-link and answers travel as copy-paste codes. The badge in the top corner says
-**THIS DEVICE**.
+The app already runs without any of this: open it and the badge says **THIS DEVICE**,
+the roster rides inside the share link, and answers travel as copy-paste codes.
 
-Do the five minutes below and the badge turns to **LIVE**: everybody's answers arrive
-by themselves, the codes disappear, and Group view updates as people reply.
+Deploy and the badge turns **LIVE**. Answers arrive on their own, the codes disappear
+from the UI, and the server — not the honour system — decides who may change what.
 
-Nothing here costs money. Firestore's free tier is far more than ten people need, and
-unlike some alternatives it does not pause when the app sits unused between gatherings.
+Everything below fits inside Cloudflare's free tier.
 
-## 1. Make a Firebase project
+## What gets created
 
-1. Go to <https://console.firebase.google.com> and sign in with a Google account.
-2. **Add project** → give it a name (`10pax` is fine) → continue.
-3. Google Analytics: **turn it off**. Nothing here needs it.
+| Piece | What it is |
+| --- | --- |
+| Worker `tenpax` | serves the app *and* the `/api` routes, one origin, no CORS |
+| D1 database `pax` | three tables: `groups`, `members`, `answers` |
+
+## 1. Log in
+
+```bash
+npx wrangler login
+```
+
+This opens a browser for your Cloudflare account. If you do not have one, the signup is
+free and needs no card. Check it worked:
+
+```bash
+npx wrangler whoami
+```
 
 ## 2. Create the database
 
-1. In the left sidebar: **Build → Firestore Database** → **Create database**.
-2. Pick a location near you (`asia-southeast1` for Singapore).
-3. Start in **production mode**. The rules in step 4 replace the defaults anyway, and
-   test mode would leave the database open to the whole internet after 30 days.
-
-## 3. Get your config
-
-1. **Project settings** (the gear, top left) → scroll to **Your apps**.
-2. Click the web icon `</>`, register the app with any nickname, skip hosting.
-3. You get a `firebaseConfig` block. Copy each value into `firebase-config.js` in this
-   repo, keeping the quotes:
-
-   ```js
-   window.PAX_FIREBASE = {
-     apiKey: "AIza…",
-     authDomain: "10pax-xxxxx.firebaseapp.com",
-     projectId: "10pax-xxxxx",
-     storageBucket: "10pax-xxxxx.appspot.com",
-     messagingSenderId: "1234567890",
-     appId: "1:1234567890:web:abcdef"
-   };
-   ```
-
-These values are **not secrets**. They identify the project; they do not grant access.
-Every Firebase web app ships them in public JavaScript. Access is controlled entirely
-by the rules in the next step, which is why that step is not optional.
-
-## 4. Paste in the security rules
-
-In **Firestore Database → Rules**, replace everything with the contents of
-[`firestore.rules`](firestore.rules) from this repo, then **Publish**.
-
-Read the comments at the top of that file before you publish. The short version: a
-group id is a long random string that only exists in the share link, and holding the
-link grants read and write to that group. The rules make group ids **undiscoverable**
-(`get` is allowed, `list` is not, so nobody can enumerate the collection) and cap the
-shape and size of what can be written. What they deliberately do **not** do is
-authenticate anybody.
-
-## 5. Publish
-
 ```bash
-python3 build.py
-git add -A && git commit -m "Add Firebase config" && git push
+npx wrangler d1 create pax
 ```
 
-Wait a minute for GitHub Pages to rebuild, open the site, and the badge should read
-**LIVE**. In Roster, hit **Make it shared** to turn your current group into a shared
-one — answers already on your device come along with it. The link changes to a short
-`#g=…` form. Send that to everybody.
+It prints a `database_id`. Put that value into `wrangler.jsonc`, replacing
+`PUT_YOUR_DATABASE_ID_HERE`:
 
-## What "the link is the key" actually means
+```jsonc
+"d1_databases": [
+  { "binding": "DB", "database_name": "pax", "database_id": "the-uuid-it-printed" }
+]
+```
 
-Be clear-eyed about this, because it is the trade-off you chose in exchange for nobody
-having to sign up:
+## 3. Create the tables
 
-- Anyone holding the link can read the group and change **anything** in it, including
-  answering as somebody else or deleting the group.
-- A link that leaks cannot be revoked. Delete the group and make a new one.
-- Group ids cannot be guessed or enumerated, so the risk is a shared link, not a
-  stranger stumbling in.
+```bash
+npm run db:remote     # applies schema.sql to the real database
+```
 
-For ten friends who already share a group chat, that is a reasonable trade. Do not use
-it for anything you would mind being read or edited by whoever ends up with the URL.
+`npm run db:local` does the same to the local copy used by `npm run dev`. Local and
+remote are separate databases; applying one never touches the other.
 
-## Costs and limits
+## 4. Deploy
 
-Firestore's free tier covers 50,000 reads and 20,000 writes a day, and 1 GiB stored.
-A ten-person group finding a date uses a handful of writes and a few hundred reads.
-You will not come close. Set a **budget alert** in Google Cloud anyway if you want to
-sleep soundly.
+```bash
+npm run deploy        # runs build.py, then wrangler deploy
+```
 
-## Turning it back off
+Wrangler prints the URL, something like `https://tenpax.<your-subdomain>.workers.dev`.
+Open it: the badge should read **LIVE**. In Roster, press **Make it shared** to turn
+your group into a shared one — answers already on your device come along. The link
+changes to a short `#g=…`. Send that around.
 
-Blank out the values in `firebase-config.js`, rebuild, and push. The app returns to
-link-and-codes mode. Groups already in Firestore stay there until you delete them
-(Roster → **Delete this group**, or from the Firebase console).
+## 5. Optional: keep the GitHub Pages link working
+
+If you already shared the Pages URL, point it at the Worker so it keeps working. Put
+the Worker URL in `pax-api.js`:
+
+```js
+window.PAX_API = "https://tenpax.<your-subdomain>.workers.dev/api";
+```
+
+Then `python3 build.py && git push`. The Worker sends permissive CORS headers, so the
+Pages copy can reach the same API. Leave it blank and the Pages copy stays in
+link-and-codes mode.
+
+## Running it locally
+
+```bash
+npm run db:local      # once
+npm run dev           # http://localhost:8787
+```
+
+`wrangler dev` uses a local D1 file, so nothing you do while developing touches the
+deployed database.
+
+## Who is allowed to do what
+
+Unlike the earlier link-only version, these rules are enforced in the Worker, so a
+friend cannot get around them by editing the page.
+
+| Action | Who | How the server knows |
+| --- | --- | --- |
+| Read a group | anyone with the link | group ids are 22 random characters and are never listed, so they cannot be guessed or enumerated |
+| Answer as yourself | the first device to claim that name | claiming returns a token; only that token can change or withdraw the answer |
+| Add, rename, remove people; change dates; delete the group | the organiser | creating a group returns an owner token once, stored on that device |
+
+Both tokens are kept in the organiser's / friend's own browser and compared as SHA-256
+hashes in constant time. Consequences worth knowing:
+
+- **Clearing your browser data loses the owner token**, and with it the ability to edit
+  or delete that group. Nothing else can recover it. Make a new group.
+- **The first device to answer as a name owns that name.** If a friend answers on the
+  wrong person's behalf, the organiser can clear that answer (× on the pill) but the
+  claim stays; remove and re-add the person to reset it.
+- **Anyone with the link can still read everything.** That is the deliberate trade for
+  nobody needing an account.
+
+## Costs
+
+The free tier covers 100,000 Worker requests a day and 5 million D1 rows read. Ten
+people picking a date uses a few hundred requests. The app polls every 8 seconds only
+while a tab is open and visible, so an idle tab costs nothing.
+
+## Undeploying
+
+```bash
+npx wrangler delete                 # removes the Worker
+npx wrangler d1 delete pax          # removes the database and all groups
+```

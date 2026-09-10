@@ -6,6 +6,7 @@
 <title>10 Pax</title>
 <meta name="description" content="Find the one hour your whole group is actually free.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%97%93%EF%B8%8F%3C/text%3E%3C/svg%3E">
+<script src="firebase-config.js"></script>
 <style>
   :root { color-scheme: light dark; }
   body { margin: 0; font: 14px system-ui, sans-serif; background: #fafaf9; }
@@ -124,7 +125,23 @@
 
   /* ---- masthead ---- */
   .mast { display: flex; flex-direction: column; gap: 9px; }
-  .toprow { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+  .toprow { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+  .topend { display: flex; align-items: center; gap: 7px; flex: none; }
+
+  .sync {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    padding: 4px 9px;
+    border-radius: 999px;
+    background: var(--surface-2);
+    color: var(--ink-3);
+    white-space: nowrap;
+  }
+  .sync.live { background: var(--mint-soft); color: var(--mint); }
+  .sync.local { background: var(--sun-soft); color: var(--sun); }
 
   .wordmark {
     font-family: var(--display);
@@ -542,6 +559,36 @@
   }
   ul.people li .x:hover { color: var(--coral); }
 
+  ul.roster { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 7px; }
+
+  ul.roster li { display: flex; align-items: center; gap: 9px; }
+  ul.roster .pip { width: 10px; height: 10px; border-radius: 999px; flex: none; }
+  ul.roster input {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-weight: 600;
+    padding: 8px 11px;
+    border-radius: 10px;
+  }
+  ul.roster button.drop {
+    appearance: none;
+    flex: none;
+    border: 2px solid var(--line);
+    background: var(--surface);
+    color: var(--ink-3);
+    width: 34px;
+    height: 34px;
+    border-radius: 999px;
+    font: inherit;
+    font-size: 17px;
+    line-height: 1;
+    cursor: pointer;
+  }
+  ul.roster button.drop:hover { border-color: var(--coral); color: var(--coral); background: var(--coral-soft); }
+
+  .danger { border-color: var(--coral) !important; color: var(--coral) !important; }
+  .danger:hover { background: var(--coral-soft) !important; }
+
   .empty {
     border: 2px dashed var(--line-2);
     border-radius: 14px;
@@ -572,7 +619,10 @@
   <header class="mast">
     <div class="toprow">
       <h1 class="wordmark">HEY <span class="two">HEY</span><span class="count" id="paxcount">10 pax</span></h1>
-      <button class="icon" id="themebtn" type="button" aria-label="Colour theme"></button>
+      <span class="topend">
+        <span class="sync" id="sync" title="">…</span>
+        <button class="icon" id="themebtn" type="button" aria-label="Colour theme"></button>
+      </span>
     </div>
     <p class="tagline">mark where you cant make it and copy the code and paste in group chat ah</p>
     <p class="groupline" id="groupline"></p>
@@ -581,6 +631,8 @@
   <div class="notice" id="example-notice" hidden>
     <p><strong>This one is just an example.</strong> Go to Roster, put in your own names and dates, then send the link out.</p>
   </div>
+
+  <div class="notice" id="cloud-notice" hidden></div>
 
   <div class="locked" id="locked" hidden>
     <span class="flag">IT&rsquo;S ON</span>
@@ -638,7 +690,7 @@
       </div>
     </section>
 
-    <section>
+    <section id="codebox">
       <p class="eyebrow">Answering on your own phone?</p>
       <div class="slab">
         <input class="codeout" id="mycode" readonly aria-label="Your code">
@@ -665,7 +717,9 @@
       <p class="hint" id="waiting"></p>
     </section>
 
-    <section>
+    <p class="hint" id="cloudnote" hidden>Everybody's answers land here by themselves. No codes needed any more.</p>
+
+    <section id="pastebox">
       <p class="eyebrow">Got a code from the chat?</p>
       <div class="slab">
         <label class="field" for="paste">
@@ -684,15 +738,17 @@
   <div class="panel" id="panel-roster" role="tabpanel" aria-labelledby="tab-roster" hidden>
     <section>
       <h2>Your people, your dates</h2>
-      <p class="hint">Change the names or the dates and it becomes a new group, so answers you already collected get cleared. Sort this out before you send the link.</p>
+      <p class="hint">Add, rename and remove people whenever you like &mdash; everyone else&rsquo;s answers stay put. Moving the <em>dates</em> is the destructive one: an answer only makes sense against the weeks it was given for, so changing them clears every answer.</p>
       <label class="field" for="gname">
         What do you call this group?
         <input type="text" id="gname" placeholder="Thursday Club" autocomplete="off">
       </label>
-      <label class="field" for="names">
-        One name per line
-        <textarea id="names" rows="10" spellcheck="false"></textarea>
-      </label>
+      <p class="eyebrow">Who is coming</p>
+      <ul class="roster" id="rosterlist"></ul>
+      <div class="row">
+        <input type="text" id="newname" placeholder="Add a name" autocomplete="off">
+        <button class="act" id="addmember">Add</button>
+      </div>
       <div class="row">
         <label class="field" for="start">
           First week starts (Monday)
@@ -704,7 +760,7 @@
         </label>
       </div>
       <div class="row">
-        <button class="act" id="save">Save</button>
+        <button class="act" id="save">Save changes</button>
         <button class="act ghost" id="loadexample">Show the example again</button>
       </div>
       <p class="msg" id="save-msg"></p>
@@ -716,8 +772,10 @@
         <p class="linkout" id="sharelink"></p>
         <div class="row">
           <button class="act" id="copylink">Copy link</button>
+          <button class="act ghost" id="gocloud" hidden>Make it shared</button>
+          <button class="act ghost danger" id="dropgroup" hidden>Delete this group</button>
         </div>
-        <p class="msg" id="link-msg">The names and dates ride inside the link, so nobody has to sign up for anything.</p>
+        <p class="msg" id="link-msg"></p>
       </div>
     </section>
   </div>
@@ -738,14 +796,29 @@
   var EXAMPLE_NAMES = ["Priscilla", "Wei Ming", "Sarah", "Daniel", "Hui Ling",
     "Marcus", "Jia Yi", "Ethan", "Rachel", "Kenji"];
 
-  // One hue per person, so the roster reads at a glance.
   var HUES = ["#6D4AFF", "#0B9A70", "#E8A317", "#D93E51", "#1B8CCC",
     "#D4479A", "#6FA82B", "#E9701E", "#00A2B8", "#8B5CF6"];
 
-  // Weeknights 6-10pm, weekends 10am-10pm.
   var WEEKDAY_FROM = 18, WEEKEND_FROM = 10, UNTIL = 22;
 
+  // gstatic pins exact patch versions, so try a few and use whichever loads.
+  var SDK_VERSIONS = ["11.1.0", "10.14.1", "10.12.5"];
+
   var $ = function (id) { return document.getElementById(id); };
+
+  function randomId(len) {
+    var abc = "abcdefghijklmnopqrstuvwxyz0123456789", out = "";
+    if (window.crypto && crypto.getRandomValues) {
+      var buf = new Uint8Array(len);
+      crypto.getRandomValues(buf);
+      for (var i = 0; i < len; i++) out += abc[buf[i] % 36];
+      return out;
+    }
+    for (var j = 0; j < len; j++) out += abc[Math.floor(Math.random() * 36)];
+    return out;
+  }
+
+  /* ---------- dates ---------- */
 
   function ymd(d) {
     return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") +
@@ -801,14 +874,29 @@
   function totalBits() { return offsets[nDays()]; }
   function bitFor(dayIdx, slotIdx) { return offsets[dayIdx] + slotIdx; }
 
-  function hourText(h) {
-    return (h % 12 === 0 ? 12 : h % 12) + (h < 12 ? "am" : "pm");
-  }
+  function hourText(h) { return (h % 12 === 0 ? 12 : h % 12) + (h < 12 ? "am" : "pm"); }
 
   function slotText(h) {
     var a = h < 12 ? "am" : "pm", b = (h + 1) < 12 ? "am" : "pm";
     var ha = h % 12 === 0 ? 12 : h % 12, hb = (h + 1) % 12 === 0 ? 12 : (h + 1) % 12;
     return a === b ? ha + "–" + hb + b : ha + a + "–" + hb + b;
+  }
+
+  /* ---------- members ---------- */
+
+  function memberName(id) {
+    for (var i = 0; i < cfg.members.length; i++) if (cfg.members[i].id === id) return cfg.members[i].name;
+    return "Somebody";
+  }
+
+  function memberIndex(id) {
+    for (var i = 0; i < cfg.members.length; i++) if (cfg.members[i].id === id) return i;
+    return -1;
+  }
+
+  function hueFor(id) {
+    var i = memberIndex(id);
+    return HUES[(i < 0 ? 0 : i) % HUES.length];
   }
 
   /* ---------- config ---------- */
@@ -828,7 +916,12 @@
   }
 
   function encodeCfg(c) {
-    var o = { n: c.name, m: c.names, s: c.start, w: c.weeks };
+    var o = {
+      n: c.name,
+      m: c.members.map(function (m) { return [m.id, m.name]; }),
+      s: c.start,
+      w: c.weeks
+    };
     if (c.pick) { o.d = c.pick.day; o.h = c.pick.hour; }
     return b64uEncode(JSON.stringify(o));
   }
@@ -839,6 +932,12 @@
     var start = parseYmd(o.s);
     if (!start) throw new Error("bad start");
     var weeks = Math.min(8, Math.max(1, Math.round(+o.w || 4)));
+    // Older links carried plain name strings; give those a stable derived id.
+    var members = o.m.slice(0, 30).map(function (entry, i) {
+      return Array.isArray(entry)
+        ? { id: String(entry[0]).slice(0, 24), name: String(entry[1]).slice(0, 40) }
+        : { id: "i" + i, name: String(entry).slice(0, 40) };
+    });
     var pick = null;
     if (typeof o.d === "number" && o.d >= 0 && o.d < weeks * 7 &&
       typeof o.h === "number" && o.h >= WEEKEND_FROM && o.h < UNTIL) {
@@ -846,7 +945,7 @@
     }
     return {
       name: String(o.n || "").slice(0, 60),
-      names: o.m.map(function (n) { return String(n).slice(0, 40); }).slice(0, 30),
+      members: members,
       start: ymd(mondayOf(start)),
       weeks: weeks,
       pick: pick
@@ -856,14 +955,45 @@
   function exampleCfg() {
     return {
       name: "Thursday Club",
-      names: EXAMPLE_NAMES.slice(),
+      members: EXAMPLE_NAMES.map(function (n, i) { return { id: "i" + i, name: n }; }),
       start: ymd(mondayOf(today())),
       weeks: 4,
       pick: null
     };
   }
 
-  /* ---------- codes ---------- */
+  function groupPayload() {
+    return {
+      name: cfg.name,
+      members: cfg.members.map(function (m) { return { id: m.id, name: m.name }; }),
+      start: cfg.start,
+      weeks: cfg.weeks,
+      pick: cfg.pick,
+      updatedAt: Date.now()
+    };
+  }
+
+  function cfgFromCloud(d) {
+    var start = parseYmd(d.start) || today();
+    var members = (Array.isArray(d.members) ? d.members : []).slice(0, 30).map(function (m, i) {
+      return { id: String((m && m.id) || ("i" + i)).slice(0, 24), name: String((m && m.name) || "?").slice(0, 40) };
+    });
+    var weeks = Math.min(8, Math.max(1, Math.round(+d.weeks || 4)));
+    var pick = null;
+    if (d.pick && typeof d.pick.day === "number" && typeof d.pick.hour === "number" &&
+      d.pick.day >= 0 && d.pick.day < weeks * 7) {
+      pick = { day: Math.round(d.pick.day), hour: Math.round(d.pick.hour) };
+    }
+    return {
+      name: String(d.name || "").slice(0, 60),
+      members: members.length ? members : exampleCfg().members,
+      start: ymd(mondayOf(start)),
+      weeks: weeks,
+      pick: pick
+    };
+  }
+
+  /* ---------- codes (local mode bridge) ---------- */
 
   function checksum(s) {
     var h = 7;
@@ -879,7 +1009,8 @@
     return mask;
   }
 
-  function encodeCode(idx, bitSet) {
+  function encodeCode(id, bitSet) {
+    var idx = Math.max(0, memberIndex(id));
     var body = idx.toString(36).toUpperCase() + "-" + maskOf(bitSet).toString(36).toUpperCase();
     return "PAX-" + body + "-" + checksum(body);
   }
@@ -900,11 +1031,13 @@
 
   function maskHas(mask, bit) { return ((mask >> BigInt(bit)) & 1n) === 1n; }
 
-  /* ---------- storage ---------- */
+  /* ---------- local storage ---------- */
 
   function cfgKey(c) {
-    // Excludes pick, so locking a time in does not throw away collected answers.
-    var s = c.names.join("|") + "@" + c.start + "/" + c.weeks;
+    // Deliberately excludes the member list: adding or renaming somebody must not
+    // orphan the answers already gathered. Only the date window changes the key,
+    // because that is what changes the meaning of a stored bitmask.
+    var s = c.name + "@" + c.start + "/" + c.weeks;
     var h = 0;
     for (var i = 0; i < s.length; i++) h = (h * 33 + s.charCodeAt(i)) | 0;
     return "10pax:" + (h >>> 0).toString(36);
@@ -924,6 +1057,8 @@
   /* ---------- state ---------- */
 
   var cfg, isExample, store, me, busy, responses, tab = "mine", selDay = 0;
+  var cloud = { on: false, gid: null, db: null, fs: null, unsub: [], gone: false };
+  var wantGid = null;
 
   function nDays() { return cfg.weeks * 7; }
 
@@ -933,32 +1068,35 @@
     return nDays() - 1;
   }
 
+  function validMe() {
+    return cfg.members.some(function (m) { return m.id === me; });
+  }
+
   function bootState() {
     offsets = buildOffsets();
-    store = cfgKey(cfg);
+    store = cloud.gid ? "10pax:g:" + cloud.gid : cfgKey(cfg);
     var saved = load(store, null) || {};
-    me = typeof saved.me === "number" && saved.me >= 0 && saved.me < cfg.names.length ? saved.me : 0;
+    me = typeof saved.me === "string" ? saved.me : null;
+    if (!me || !validMe()) me = cfg.members.length ? cfg.members[0].id : null;
     busy = new Set(Array.isArray(saved.busy)
       ? saved.busy.filter(function (b) { return b >= 0 && b < totalBits(); }) : []);
-    responses = {};
-    var raw = saved.responses && typeof saved.responses === "object" ? saved.responses : {};
-    Object.keys(raw).forEach(function (k) {
-      var idx = +k;
-      if (idx >= 0 && idx < cfg.names.length && /^[0-9]+$/.test(String(raw[k]))) {
-        responses[idx] = BigInt(raw[k]);
-      }
-    });
+    if (!cloud.on) {
+      responses = {};
+      var raw = saved.responses && typeof saved.responses === "object" ? saved.responses : {};
+      Object.keys(raw).forEach(function (k) {
+        if (/^[0-9]+$/.test(String(raw[k]))) responses[k] = BigInt(raw[k]);
+      });
+      if (isExample && !Object.keys(responses).length) seedExample();
+    }
     selDay = cfg.pick ? cfg.pick.day : firstFutureDay();
-    if (isExample && !Object.keys(responses).length) seedExample();
   }
 
   function persist() {
     var out = {};
     Object.keys(responses).forEach(function (k) { out[k] = responses[k].toString(); });
-    save(store, { me: me, busy: Array.from(busy), responses: out });
+    save(store, { me: me, busy: Array.from(busy), responses: cloud.on ? {} : out });
   }
 
-  // Example answers, so the page opens showing what it actually does.
   function seedExample() {
     var wholeDaysOut = { 1: [2, 9, 16], 2: [0, 1, 7, 14, 21], 4: [3, 11, 18, 25], 6: [9, 23], 7: [2, 13, 20] };
     var lateOnly = [2, 6];
@@ -974,7 +1112,7 @@
           hoursFor(d2).forEach(function (h, i) { if (h < 17) bits.add(bitFor(d2, i)); });
         }
       }
-      responses[idx] = maskOf(bits);
+      if (cfg.members[idx]) responses[cfg.members[idx].id] = maskOf(bits);
     });
     var mine = new Set();
     [1, 8, 15, 22].forEach(function (d) {
@@ -985,8 +1123,21 @@
   }
 
   function init() {
-    var raw = (location.hash || "").replace(/^#c=/, "");
-    if (raw && raw !== location.hash) {
+    var h = location.hash || "";
+    var g = /^#g=([a-z0-9]{6,40})$/.exec(h);
+    wantGid = g ? g[1] : null;
+    if (wantGid) {
+      // Real config arrives from Firestore; show something sane until it does.
+      cfg = exampleCfg();
+      cfg.name = "";
+      cfg.members = [];
+      isExample = false;
+      responses = {};
+      offsets = buildOffsets();
+      return;
+    }
+    var raw = h.replace(/^#c=/, "");
+    if (raw && raw !== h) {
       try { cfg = decodeCfg(raw); isExample = false; }
       catch (e) { cfg = exampleCfg(); isExample = true; }
     } else {
@@ -996,7 +1147,141 @@
     bootState();
   }
 
-  function pushCfg() { location.hash = "c=" + encodeCfg(cfg); }
+  function pushHash() {
+    var want = cloud.on ? "g=" + cloud.gid : "c=" + encodeCfg(cfg);
+    if (location.hash.replace(/^#/, "") !== want) location.hash = want;
+  }
+
+  /* ---------- firebase ---------- */
+
+  function loadFirebase() {
+    var conf = window.PAX_FIREBASE;
+    if (!conf || !conf.apiKey || !conf.projectId) return Promise.resolve(null);
+    var vers = conf.sdkVersion ? [conf.sdkVersion] : SDK_VERSIONS;
+    var attempt = function (i) {
+      if (i >= vers.length) return Promise.resolve(null);
+      var base = "https://www.gstatic.com/firebasejs/" + vers[i] + "/";
+      return Promise.all([
+        import(base + "firebase-app.js"),
+        import(base + "firebase-firestore.js")
+      ]).then(function (mods) {
+        var app = mods[0].initializeApp(conf);
+        return { db: mods[1].getFirestore(app), fs: mods[1] };
+      }, function () { return attempt(i + 1); });
+    };
+    return attempt(0);
+  }
+
+  function gdoc() { return cloud.fs.doc(cloud.db, "groups", cloud.gid); }
+  function adoc(id) { return cloud.fs.doc(cloud.db, "groups", cloud.gid, "answers", id); }
+  function acol() { return cloud.fs.collection(cloud.db, "groups", cloud.gid, "answers"); }
+
+  function stopWatch() {
+    cloud.unsub.forEach(function (u) { try { u(); } catch (e) { /* already gone */ } });
+    cloud.unsub = [];
+  }
+
+  function watchGroup() {
+    stopWatch();
+    cloud.unsub.push(cloud.fs.onSnapshot(gdoc(), function (snap) {
+      if (!snap.exists()) {
+        cloud.gone = true;
+        renderCloudNotice();
+        return;
+      }
+      cloud.gone = false;
+      var incoming = cfgFromCloud(snap.data());
+      var weeksChanged = !cfg || cfg.weeks !== incoming.weeks || cfg.start !== incoming.start;
+      cfg = incoming;
+      offsets = buildOffsets();
+      if (weeksChanged) {
+        busy = new Set(Array.from(busy).filter(function (b) { return b < totalBits(); }));
+      }
+      if (!validMe()) me = cfg.members.length ? cfg.members[0].id : null;
+      selDay = cfg.pick ? cfg.pick.day : firstFutureDay();
+      renderAll();
+    }, function () { setSync("error"); }));
+
+    cloud.unsub.push(cloud.fs.onSnapshot(acol(), function (qs) {
+      responses = {};
+      qs.forEach(function (d) {
+        var v = d.data() || {};
+        if (/^[0-9]+$/.test(String(v.mask))) responses[d.id] = BigInt(v.mask);
+      });
+      renderAll();
+    }, function () { setSync("error"); }));
+  }
+
+  function saveGroup() {
+    if (!cloud.on) { pushHash(); renderAll(); return Promise.resolve(); }
+    return cloud.fs.setDoc(gdoc(), groupPayload());
+  }
+
+  function saveAnswer() {
+    if (!cloud.on) {
+      responses[me] = maskOf(busy);
+      persist();
+      return Promise.resolve();
+    }
+    return cloud.fs.setDoc(adoc(me), {
+      mask: maskOf(busy).toString(),
+      name: memberName(me),
+      updatedAt: Date.now()
+    });
+  }
+
+  function dropAnswer(id) {
+    if (!cloud.on) {
+      delete responses[id];
+      persist();
+      return Promise.resolve();
+    }
+    return cloud.fs.deleteDoc(adoc(id));
+  }
+
+  function goCloud() {
+    var gid = randomId(22);
+    var payload = groupPayload();
+    return cloud.fs.setDoc(cloud.fs.doc(cloud.db, "groups", gid), payload).then(function () {
+      cloud.gid = gid;
+      cloud.on = true;
+      isExample = false;
+      store = "10pax:g:" + gid;
+      // Carry over whatever answers this device already had.
+      var carry = Object.keys(responses).map(function (id) {
+        return cloud.fs.setDoc(cloud.fs.doc(cloud.db, "groups", gid, "answers", id), {
+          mask: responses[id].toString(), name: memberName(id), updatedAt: Date.now()
+        });
+      });
+      return Promise.all(carry);
+    }).then(function () {
+      pushHash();
+      watchGroup();
+      setSync();
+      renderAll();
+    });
+  }
+
+  function dropGroup() {
+    return cloud.fs.getDocs(acol()).then(function (qs) {
+      var kills = [];
+      qs.forEach(function (d) { kills.push(cloud.fs.deleteDoc(d.ref)); });
+      return Promise.all(kills);
+    }).then(function () {
+      return cloud.fs.deleteDoc(gdoc());
+    }).then(function () {
+      stopWatch();
+      cloud.on = false;
+      cloud.gid = null;
+      cloud.gone = false;
+      cfg = exampleCfg();
+      isExample = true;
+      location.hash = "";
+      bootState();
+      setSync();
+      renderAll();
+    });
+  }
 
   /* ---------- helpers ---------- */
 
@@ -1035,11 +1320,50 @@
     b.title = "Colours: " + theme + " — tap to switch";
   }
 
+  /* ---------- sync badge ---------- */
+
+  function setSync(state) {
+    var el = $("sync");
+    if (state === "error") {
+      el.textContent = "Offline";
+      el.className = "sync local";
+      el.title = "The database could not be reached. Changes are staying on this device.";
+      return;
+    }
+    if (cloud.on) {
+      el.textContent = "Live";
+      el.className = "sync live";
+      el.title = "Everybody sees the same thing. Answers show up here as they come in.";
+    } else {
+      el.textContent = "This device";
+      el.className = "sync local";
+      el.title = "No shared database yet, so answers travel as codes.";
+    }
+  }
+
+  function renderCloudNotice() {
+    var n = $("cloud-notice");
+    if (cloud.gone) {
+      n.hidden = false;
+      n.innerHTML = "<p><strong>This group is gone.</strong> Whoever set it up deleted it. " +
+        "Make a new one in Roster and send the fresh link round.</p>";
+      return;
+    }
+    if (wantGid && !cloud.on) {
+      n.hidden = false;
+      n.innerHTML = "<p><strong>Cannot reach this group.</strong> The link points at a shared group, " +
+        "but the database did not answer. Check your connection and reload.</p>";
+      return;
+    }
+    n.hidden = true;
+  }
+
   /* ---------- rendering ---------- */
 
   function renderMast() {
-    $("paxcount").textContent = cfg.names.length + " pax";
+    $("paxcount").textContent = cfg.members.length + " pax";
     $("example-notice").hidden = !isExample;
+    renderCloudNotice();
     var start = parseYmd(cfg.start), end = addDays(start, nDays() - 1);
     var bits = [];
     if (cfg.name) bits.push(cfg.name);
@@ -1053,10 +1377,9 @@
     if (!cfg.pick) { box.hidden = true; return; }
     box.hidden = false;
     $("locked-when").textContent = whenLabel(cfg.pick, true);
-    var replies = Object.keys(responses).map(Number);
     var bit = bitFor(cfg.pick.day, hoursFor(cfg.pick.day).indexOf(cfg.pick.hour));
-    var out = replies.filter(function (i) { return maskHas(responses[i], bit); }).length;
-    $("locked-sub").textContent = (cfg.names.length - out) + " of " + cfg.names.length + " can make it";
+    var out = Object.keys(responses).filter(function (id) { return maskHas(responses[id], bit); }).length;
+    $("locked-sub").textContent = (cfg.members.length - out) + " of " + cfg.members.length + " can make it";
   }
 
   function renderTabs() {
@@ -1067,21 +1390,18 @@
     });
   }
 
-  function selectTab(which) {
-    tab = which;
-    renderTabs();
-  }
+  function selectTab(which) { tab = which; renderTabs(); }
 
   function renderWho() {
     var sel = $("who");
     sel.innerHTML = "";
-    cfg.names.forEach(function (n, i) {
+    cfg.members.forEach(function (m) {
       var o = document.createElement("option");
-      o.value = String(i);
-      o.textContent = n;
+      o.value = m.id;
+      o.textContent = m.name;
       sel.appendChild(o);
     });
-    sel.value = String(me);
+    if (me) sel.value = me;
   }
 
   function renderCal() {
@@ -1119,14 +1439,12 @@
           (st === "all" ? " all" : st === "some" ? " some" : "") +
           (dayIdx === selDay ? " sel" : "");
         b.dataset.day = String(dayIdx);
-
         var num = document.createElement("span");
         num.textContent = String(date.getDate());
         var dot = document.createElement("span");
         dot.className = "dot";
         b.appendChild(num);
         b.appendChild(dot);
-
         var label = DOW[i] + " " + date.getDate() + " " + MONTHS[date.getMonth()];
         if (date < t) {
           b.disabled = true;
@@ -1146,7 +1464,6 @@
     $("slot-eyebrow").textContent = dayLabel(selDay, true) + " · " +
       hourText(hours[0]) + "–" + hourText(UNTIL) +
       (isWeekend(selDay) ? " (weekend)" : " (weeknight)");
-
     var box = $("slots");
     box.innerHTML = "";
     hours.forEach(function (h, i) {
@@ -1162,37 +1479,38 @@
     });
   }
 
-  function renderMyCode() { $("mycode").value = encodeCode(me, busy); }
+  function renderMyCode() {
+    $("mycode").value = me ? encodeCode(me, busy) : "";
+  }
 
-  // The hour a day is most likely to work: fewest people out, then closest to 7pm.
-  function bestSlot(dayIdx, replies) {
+  function bestSlot(dayIdx, ids) {
     var hours = hoursFor(dayIdx), best = null;
     hours.forEach(function (h, i) {
       var bit = bitFor(dayIdx, i);
-      var out = replies.filter(function (idx) { return maskHas(responses[idx], bit); });
+      var out = ids.filter(function (id) { return maskHas(responses[id], bit); });
       var score = [out.length, Math.abs(h - 19), h];
       if (!best || score[0] < best.score[0] ||
         (score[0] === best.score[0] && score[1] < best.score[1]) ||
         (score[0] === best.score[0] && score[1] === best.score[1] && score[2] < best.score[2])) {
-        best = { hour: h, out: out.map(function (idx) { return cfg.names[idx]; }), score: score };
+        best = { hour: h, out: out.map(memberName), score: score };
       }
     });
     return best;
   }
 
   function renderGroup() {
-    var replies = Object.keys(responses).map(Number);
-    var total = cfg.names.length, t = today(), start = parseYmd(cfg.start);
+    var ids = Object.keys(responses).filter(function (id) { return memberIndex(id) >= 0; });
+    var total = cfg.members.length, t = today(), start = parseYmd(cfg.start);
 
-    $("group-hint").textContent = !replies.length
+    $("group-hint").textContent = !ids.length
       ? "Nobody has answered yet. As people hit Done, the good hours float to the top."
-      : replies.length + " out of " + total + " have answered. Each row is the best hour that day. Hit Lock it in once you have picked one.";
+      : ids.length + " out of " + total + " have answered. Each row is the best hour that day. Hit Lock it in once you have picked one.";
 
     var rows = [];
     for (var d = 0; d < nDays(); d++) {
       if (addDays(start, d) < t) continue;
-      var bs = bestSlot(d, replies);
-      rows.push({ day: d, hour: bs.hour, out: bs.out, free: replies.length - bs.out.length, unknown: total - replies.length });
+      var bs = bestSlot(d, ids);
+      rows.push({ day: d, hour: bs.hour, out: bs.out, free: ids.length - bs.out.length, unknown: total - ids.length });
     }
     rows.sort(function (a, b) { return a.out.length - b.out.length || a.unknown - b.unknown || a.day - b.day; });
 
@@ -1217,10 +1535,8 @@
       var li = document.createElement("li");
       li.className = "date " + (r.out.length === 0 ? "clear" : r.out.length <= 2 ? "near" : "hard") +
         (isPick ? " picked" : "");
-
       var stripe = document.createElement("div");
       stripe.className = "stripe";
-
       var who = document.createElement("div");
       who.className = "who";
       var when = document.createElement("div");
@@ -1228,7 +1544,7 @@
       when.textContent = dayLabel(r.day) + " · " + slotText(r.hour);
       var out = document.createElement("div");
       out.className = "out";
-      if (!replies.length) {
+      if (!ids.length) {
         out.textContent = "Still waiting on everybody";
       } else if (!r.out.length) {
         out.textContent = r.unknown ? "Everyone who answered can make it · " + r.unknown + " to go" : "Everybody can make it";
@@ -1240,7 +1556,6 @@
       }
       who.appendChild(when);
       who.appendChild(out);
-
       var end = document.createElement("div");
       end.className = "end";
       var tally = document.createElement("div");
@@ -1255,51 +1570,90 @@
       pk.textContent = isPick ? "Locked in" : "Lock it in";
       end.appendChild(tally);
       end.appendChild(pk);
-
       li.appendChild(stripe);
       li.appendChild(who);
       li.appendChild(end);
       list.appendChild(li);
     });
 
-    $("replied-eyebrow").textContent = "Who answered — " + replies.length + " of " + total;
-    var pending = cfg.names.filter(function (n, i) {
-      return !Object.prototype.hasOwnProperty.call(responses, i);
-    });
+    $("replied-eyebrow").textContent = "Who answered — " + ids.length + " of " + total;
+    var pending = cfg.members.filter(function (m) {
+      return !Object.prototype.hasOwnProperty.call(responses, m.id);
+    }).map(function (m) { return m.name; });
     $("waiting").textContent = pending.length
       ? "Still waiting on: " + pending.join(", ")
-      : "Everybody has answered.";
+      : (total ? "Everybody has answered." : "Nobody is on the list yet.");
 
     var ul = $("replied");
     ul.innerHTML = "";
-    cfg.names.forEach(function (n, i) {
+    cfg.members.forEach(function (m) {
       var li2 = document.createElement("li");
-      var inYet = Object.prototype.hasOwnProperty.call(responses, i);
+      var inYet = Object.prototype.hasOwnProperty.call(responses, m.id);
       li2.className = inYet ? "in" : "";
       var pip = document.createElement("span");
       pip.className = "pip";
-      pip.style.background = HUES[i % HUES.length];
+      pip.style.background = hueFor(m.id);
       li2.appendChild(pip);
-      li2.appendChild(document.createTextNode(n));
+      li2.appendChild(document.createTextNode(m.name));
       if (inYet) {
         var x = document.createElement("button");
         x.className = "x";
         x.type = "button";
         x.textContent = "×";
-        x.setAttribute("aria-label", "Take out " + n + "'s answer");
-        x.dataset.drop = String(i);
+        x.setAttribute("aria-label", "Take out " + m.name + "'s answer");
+        x.dataset.drop = m.id;
         li2.appendChild(x);
       }
       ul.appendChild(li2);
     });
+
+    // Codes only matter while there is no shared database.
+    $("codebox").hidden = cloud.on;
+    $("pastebox").hidden = cloud.on;
+    $("cloudnote").hidden = !cloud.on;
   }
 
   function renderRoster() {
     $("gname").value = cfg.name;
-    $("names").value = cfg.names.join("\n");
     $("start").value = cfg.start;
     $("weeks").value = String(cfg.weeks);
-    $("sharelink").textContent = location.href.split("#")[0] + "#c=" + encodeCfg(cfg);
+
+    var ul = $("rosterlist");
+    ul.innerHTML = "";
+    cfg.members.forEach(function (m) {
+      var li = document.createElement("li");
+      var pip = document.createElement("span");
+      pip.className = "pip";
+      pip.style.background = hueFor(m.id);
+      var inp = document.createElement("input");
+      inp.type = "text";
+      inp.className = "rname";
+      inp.value = m.name;
+      inp.dataset.id = m.id;
+      inp.setAttribute("aria-label", "Name");
+      var del = document.createElement("button");
+      del.className = "drop";
+      del.type = "button";
+      del.textContent = "×";
+      del.dataset.remove = m.id;
+      del.setAttribute("aria-label", "Take " + m.name + " off the list");
+      li.appendChild(pip);
+      li.appendChild(inp);
+      li.appendChild(del);
+      ul.appendChild(li);
+    });
+
+    var base = location.href.split("#")[0];
+    $("sharelink").textContent = base + "#" + (cloud.on ? "g=" + cloud.gid : "c=" + encodeCfg(cfg));
+
+    var canCloud = !!cloud.db && !cloud.on;
+    $("gocloud").hidden = !canCloud;
+    $("dropgroup").hidden = !cloud.on;
+    $("link-msg").textContent = cloud.on
+      ? "Everybody who opens this link sees the same group, and answers land here by themselves."
+      : (canCloud
+        ? "Right now the names and dates ride inside the link. Hit Make it shared and everyone's answers come to you automatically instead."
+        : "The names and dates ride inside the link, so nobody has to sign up for anything.");
   }
 
   function renderAll() {
@@ -1314,12 +1668,16 @@
     renderRoster();
   }
 
-  /* ---------- messages & clipboard ---------- */
+  /* ---------- messages ---------- */
 
   function say(id, text, kind) {
     var el = $(id);
     el.textContent = text;
     el.className = "msg" + (kind ? " " + kind : "");
+  }
+
+  function oops(id, err) {
+    say(id, "That did not save: " + (err && err.message ? err.message : "the database refused it") + ".", "err");
   }
 
   function copy(text, msgId, okText) {
@@ -1387,28 +1745,30 @@
     });
 
     $("who").addEventListener("change", function (e) {
-      me = +e.target.value;
-      renderMyCode();
+      me = e.target.value;
       persist();
+      renderMyCode();
     });
 
     $("finish").addEventListener("click", function () {
-      responses[me] = maskOf(busy);
-      persist();
-      renderAll();
-      selectTab("group");
-      var left = cfg.names.length - Object.keys(responses).length;
-      say("group-msg", cfg.names[me] + " is in. " + (left
-        ? "Still waiting on " + left + (left === 1 ? " person." : " people.")
-        : "That is everybody!"), "ok");
+      if (!me) { say("finish-msg", "Add yourself to the list in Roster first.", "err"); return; }
+      saveAnswer().then(function () {
+        renderAll();
+        selectTab("group");
+        var left = cfg.members.length - Object.keys(responses).length;
+        say("group-msg", memberName(me) + " is in. " + (left > 0
+          ? "Still waiting on " + left + (left === 1 ? " person." : " people.")
+          : "That is everybody!"), "ok");
+      }, function (err) { oops("finish-msg", err); });
     });
 
     $("clearmine").addEventListener("click", function () {
       busy = new Set();
-      delete responses[me];
       persist();
-      renderAll();
-      say("finish-msg", "All clear. You are free at every hour again, and your answer is out of Group view until you hit Done.", "");
+      dropAnswer(me).then(function () {
+        renderAll();
+        say("finish-msg", "All clear. You are free at every hour again, and your answer is out of Group view until you hit Done.", "");
+      }, function (err) { oops("finish-msg", err); });
     });
 
     $("copycode").addEventListener("click", function () {
@@ -1419,13 +1779,13 @@
       var raw = $("paste").value;
       if (!raw.trim()) { say("paste-msg", "Paste a code in first.", "err"); return; }
       try {
-        var r = decodeCode(raw, cfg.names.length);
-        responses[r.idx] = r.mask;
+        var r = decodeCode(raw, cfg.members.length);
+        var id = cfg.members[r.idx].id;
+        responses[id] = r.mask;
         persist();
-        renderGroup();
-        renderLocked();
+        renderAll();
         $("paste").value = "";
-        say("paste-msg", cfg.names[r.idx] + " is in.", "ok");
+        say("paste-msg", memberName(id) + " is in.", "ok");
       } catch (err) {
         say("paste-msg", err.message, "err");
       }
@@ -1436,61 +1796,121 @@
     });
 
     $("resetcodes").addEventListener("click", function () {
-      responses = {};
-      persist();
-      renderGroup();
-      renderLocked();
-      say("paste-msg", "Every answer is gone.", "");
+      var ids = Object.keys(responses);
+      Promise.all(ids.map(dropAnswer)).then(function () {
+        renderAll();
+        say("paste-msg", "Every answer is gone.", "");
+      }, function (err) { oops("paste-msg", err); });
     });
 
     $("replied").addEventListener("click", function (e) {
       var x = e.target.closest("button.x");
       if (!x) return;
-      var idx = +x.dataset.drop, name = cfg.names[idx];
-      delete responses[idx];
-      persist();
-      renderGroup();
-      renderLocked();
-      say("paste-msg", name + " is back on the waiting list.", "");
+      var id = x.dataset.drop, name = memberName(id);
+      dropAnswer(id).then(function () {
+        renderAll();
+        say("paste-msg", name + " is back on the waiting list.", "");
+      }, function (err) { oops("paste-msg", err); });
     });
 
     $("ranked").addEventListener("click", function (e) {
       var b = e.target.closest("button.pick");
       if (!b) return;
       var day = +b.dataset.day, hour = +b.dataset.hour;
-      if (cfg.pick && cfg.pick.day === day && cfg.pick.hour === hour) {
-        cfg.pick = null;
-        pushCfg();
+      var undo = cfg.pick && cfg.pick.day === day && cfg.pick.hour === hour;
+      cfg.pick = undo ? null : { day: day, hour: hour };
+      saveGroup().then(function () {
         renderAll();
-        say("pick-msg", "Unlocked. Nothing is fixed yet.", "");
-        return;
-      }
-      cfg.pick = { day: day, hour: hour };
-      pushCfg();
-      renderAll();
-      say("pick-msg", whenLabel(cfg.pick, true) + " it is. Copy the link again from Roster so everybody sees it.", "ok");
+        say("pick-msg", undo ? "Unlocked. Nothing is fixed yet."
+          : whenLabel(cfg.pick, true) + " it is." + (cloud.on ? " Everybody sees it now." : " Copy the link again from Roster so everybody sees it."), undo ? "" : "ok");
+      }, function (err) { oops("pick-msg", err); });
+    });
+
+    /* ---- roster CRUD ---- */
+
+    $("addmember").addEventListener("click", function () {
+      var name = $("newname").value.trim();
+      if (!name) { say("save-msg", "Type a name first.", "err"); return; }
+      if (cfg.members.length >= 30) { say("save-msg", "Thirty people is the limit.", "err"); return; }
+      cfg.members = cfg.members.concat([{ id: randomId(8), name: name.slice(0, 40) }]);
+      $("newname").value = "";
+      saveGroup().then(function () {
+        renderAll();
+        say("save-msg", name + " is on the list.", "ok");
+      }, function (err) { oops("save-msg", err); });
+    });
+
+    $("newname").addEventListener("keydown", function (e) {
+      if (e.key === "Enter") { e.preventDefault(); $("addmember").click(); }
+    });
+
+    $("rosterlist").addEventListener("change", function (e) {
+      var inp = e.target.closest("input.rname");
+      if (!inp) return;
+      var id = inp.dataset.id, name = inp.value.trim();
+      if (!name) { renderRoster(); return; }
+      cfg.members = cfg.members.map(function (m) {
+        return m.id === id ? { id: m.id, name: name.slice(0, 40) } : m;
+      });
+      saveGroup().then(function () {
+        renderAll();
+        say("save-msg", "Renamed to " + name + ". Their answer stayed put.", "ok");
+      }, function (err) { oops("save-msg", err); });
+    });
+
+    $("rosterlist").addEventListener("click", function (e) {
+      var b = e.target.closest("button.drop");
+      if (!b) return;
+      var id = b.dataset.remove, name = memberName(id);
+      if (cfg.members.length <= 2) { say("save-msg", "Keep at least two people on the list.", "err"); return; }
+      cfg.members = cfg.members.filter(function (m) { return m.id !== id; });
+      if (me === id) me = cfg.members[0].id;
+      Promise.all([saveGroup(), dropAnswer(id)]).then(function () {
+        renderAll();
+        say("save-msg", name + " is off the list.", "ok");
+      }, function (err) { oops("save-msg", err); });
+    });
+
+    $("gname").addEventListener("change", function () {
+      cfg.name = $("gname").value.trim().slice(0, 60);
+      saveGroup().then(function () { renderAll(); }, function (err) { oops("save-msg", err); });
     });
 
     $("save").addEventListener("click", function () {
-      var names = $("names").value.split("\n").map(function (s) { return s.trim(); }).filter(Boolean).slice(0, 30);
-      if (names.length < 2) { say("save-msg", "Put in at least two names, one per line.", "err"); return; }
       var start = parseYmd($("start").value);
       if (!start) { say("save-msg", "Pick a start date first.", "err"); return; }
-      cfg = {
-        name: $("gname").value.trim().slice(0, 60),
-        names: names.map(function (n) { return n.slice(0, 40); }),
-        start: ymd(mondayOf(start)),
-        weeks: Math.min(8, Math.max(1, Math.round(+$("weeks").value || 4))),
-        pick: null
-      };
+      var newStart = ymd(mondayOf(start));
+      var newWeeks = Math.min(8, Math.max(1, Math.round(+$("weeks").value || 4)));
+      // An answer is a bitmask over this exact window. Move the window and every
+      // stored mask means something different, so the answers have to go.
+      var windowMoved = newStart !== cfg.start || newWeeks !== cfg.weeks;
+      var had = Object.keys(responses).length;
+
+      cfg.name = $("gname").value.trim().slice(0, 60);
+      cfg.start = newStart;
+      cfg.weeks = newWeeks;
+      if (windowMoved) cfg.pick = null;
+      offsets = buildOffsets();
       isExample = false;
-      pushCfg();
-      bootState();
-      renderAll();
-      say("save-msg", "Saved. Copy the link below and send it round.", "ok");
+
+      var clears = [];
+      if (windowMoved) {
+        busy = new Set();
+        clears = Object.keys(responses).map(dropAnswer);
+      }
+      if (!cloud.on) { store = cfgKey(cfg); }
+
+      Promise.all(clears.concat([saveGroup()])).then(function () {
+        if (windowMoved) { responses = {}; persist(); }
+        renderAll();
+        say("save-msg", windowMoved
+          ? "Saved. The dates moved, so " + (had ? "the " + had + " answer" + (had === 1 ? "" : "s") + " so far had to be cleared. Ask everyone again." : "everybody starts fresh.")
+          : "Saved.", "ok");
+      }, function (err) { oops("save-msg", err); });
     });
 
     $("loadexample").addEventListener("click", function () {
+      if (cloud.on) { say("save-msg", "This is a shared group. Delete it first if you want the example back.", "err"); return; }
       cfg = exampleCfg();
       isExample = true;
       location.hash = "";
@@ -1499,16 +1919,52 @@
       say("save-msg", "Example is back.", "");
     });
 
+    $("gocloud").addEventListener("click", function () {
+      say("save-msg", "Making the shared group…", "");
+      goCloud().then(function () {
+        say("save-msg", "Done. Copy the link below — from now on answers come straight to you.", "ok");
+      }, function (err) { oops("save-msg", err); });
+    });
+
+    $("dropgroup").addEventListener("click", function () {
+      var b = $("dropgroup");
+      if (b.dataset.sure !== "1") {
+        b.dataset.sure = "1";
+        b.textContent = "Really delete?";
+        say("link-msg", "Tap again to delete this group and everybody's answers for good.", "err");
+        return;
+      }
+      b.dataset.sure = "";
+      b.textContent = "Delete this group";
+      dropGroup().then(function () {
+        say("save-msg", "Group deleted. You are back on a fresh example.", "");
+      }, function (err) { oops("link-msg", err); });
+    });
+
     $("copylink").addEventListener("click", function () {
-      copy($("sharelink").textContent, "link-msg", "Link copied. Whoever opens it sees the same names and dates.");
+      copy($("sharelink").textContent, "link-msg", "Link copied. Whoever opens it sees the same group.");
     });
 
     window.addEventListener("hashchange", function () {
+      var g = /^#g=([a-z0-9]{6,40})$/.exec(location.hash || "");
+      if (g && g[1] === cloud.gid) return;
+      stopWatch();
+      cloud.on = false;
+      cloud.gid = null;
       init();
       tab = "mine";
+      if (wantGid && cloud.db) {
+        cloud.gid = wantGid;
+        cloud.on = true;
+        store = "10pax:g:" + wantGid;
+        watchGroup();
+      }
+      setSync();
       renderAll();
     });
   }
+
+  /* ---------- boot ---------- */
 
   try {
     var ts = localStorage.getItem("10pax:theme");
@@ -1518,7 +1974,25 @@
   applyTheme();
   init();
   wire();
+  setSync();
   renderAll();
+
+  loadFirebase().then(function (api) {
+    if (!api) { setSync(); renderCloudNotice(); return; }
+    cloud.db = api.db;
+    cloud.fs = api.fs;
+    if (wantGid) {
+      cloud.gid = wantGid;
+      cloud.on = true;
+      store = "10pax:g:" + wantGid;
+      var saved = load(store, null) || {};
+      if (typeof saved.me === "string") me = saved.me;
+      busy = new Set(Array.isArray(saved.busy) ? saved.busy : []);
+      watchGroup();
+    }
+    setSync();
+    renderAll();
+  }, function () { setSync("error"); });
 
   try {
     localStorage.setItem("10pax:probe", "1");

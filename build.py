@@ -37,6 +37,9 @@ def main() -> None:
         f"<title>{title}</title>\n"
         '<meta name="description" content="Find the one hour your whole group is actually free.">\n'
         f'<link rel="icon" href="{FAVICON}">\n'
+        # Loaded before the app so window.PAX_FIREBASE exists when it boots.
+        # Missing or blank config is fine: the app falls back to link + codes.
+        '<script src="firebase-config.js"></script>\n'
         "<style>\n"
         "  :root { color-scheme: light dark; }\n"
         "  body { margin: 0; font: 14px system-ui, sans-serif; background: #fafaf9; }\n"

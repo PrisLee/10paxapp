@@ -9,7 +9,9 @@
     "deploy": "npm run build && wrangler deploy",
     "db:local": "wrangler d1 execute pax --local --file=schema.sql",
     "db:remote": "wrangler d1 execute pax --remote --file=schema.sql",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "node --test \"test/**/*.test.mjs\"",
+    "coverage": "node --test --experimental-test-coverage --test-coverage-include='worker/**' \"test/**/*.test.mjs\""
   },
   "devDependencies": {
     "wrangler": "^4.130.0"

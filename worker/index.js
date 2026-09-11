@@ -95,6 +95,17 @@ function validStart(v) {
   return date.getUTCFullYear() === y && date.getUTCMonth() === m - 1 && date.getUTCDate() === d;
 }
 
+/**
+ * The slot grid is indexed from a Monday — firstHourOf() reads `day % 7` to
+ * tell a weeknight from a weekend — and schema.sql documents `start` as one.
+ * The client already normalises with mondayOf(); this holds the line server
+ * side, where the invariant actually has to be true.
+ */
+function startsOnMonday(v) {
+  const [y, m, d] = String(v ?? "").split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, d)).getUTCDay() === 1;
+}
+
 function validWeeks(v) {
   const n = Math.round(Number(v));
   return Number.isFinite(n) && n >= 1 && n <= 8 ? n : null;
@@ -222,6 +233,7 @@ async function createGroup(db, request) {
   const weeks = validWeeks(b.weeks);
   if (!weeks) return fail(400, "weeks must be a whole number from 1 to 8.");
   if (!validStart(b.start)) return fail(400, "start must look like 2026-09-07.");
+  if (!startsOnMonday(b.start)) return fail(400, "start must be a Monday, like 2026-09-07.");
 
   const names = Array.isArray(b.members) ? b.members : [];
   const members = names
@@ -260,8 +272,14 @@ async function patchGroup(db, gid, request) {
   if (!current) return fail(404, "No such group.");
 
   const name = b.name === undefined ? current.name : cleanName(b.name, MAX_GROUP_NAME);
+  // Judge only what the caller sent. A row stored before these checks existed
+  // keeps the start it has, so a rename is never locked out by it; sending a
+  // fresh start is how the organiser repairs one.
   const start = b.start === undefined ? current.start : String(b.start);
-  if (!validStart(start)) return fail(400, "start must look like 2026-09-07.");
+  if (b.start !== undefined) {
+    if (!validStart(start)) return fail(400, "start must look like 2026-09-07.");
+    if (!startsOnMonday(start)) return fail(400, "start must be a Monday, like 2026-09-07.");
+  }
   const weeks = b.weeks === undefined ? current.weeks : validWeeks(b.weeks);
   if (!weeks) return fail(400, "weeks must be a whole number from 1 to 8.");
 

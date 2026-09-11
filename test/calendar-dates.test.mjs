@@ -24,11 +24,12 @@ const IMPOSSIBLE = [
   "2026-12-32",
 ];
 
+// All Mondays, since `start` must be one; the point here is calendar validity.
 const REAL = [
-  "2026-09-07", // a Monday
-  "2026-01-01",
-  "2026-12-31",
-  "2028-02-29", // 2028 is a leap year
+  "2026-09-07",
+  "2029-01-01", // first of the year
+  "2029-12-31", // last of the year
+  "2044-02-29", // a leap day
 ];
 
 describe("`start` has to be a date that exists", () => {

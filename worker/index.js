@@ -85,7 +85,14 @@ function cleanName(v, cap) {
 }
 
 function validStart(v) {
-  return /^\d{4}-\d{2}-\d{2}$/.test(String(v ?? ""));
+  const s = String(v ?? "");
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return false;
+  // The shape alone lets through 2026-13-45 and 2026-02-31. `start` anchors
+  // the whole slot grid, so round-trip it through a UTC date and insist the
+  // parts come back unchanged: anything that rolled over did not exist.
+  const [y, m, d] = s.split("-").map(Number);
+  const date = new Date(Date.UTC(y, m - 1, d));
+  return date.getUTCFullYear() === y && date.getUTCMonth() === m - 1 && date.getUTCDate() === d;
 }
 
 function validWeeks(v) {

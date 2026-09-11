@@ -358,7 +358,23 @@ export default {
     const url = new URL(request.url);
     const path = url.pathname;
 
-    if (!path.startsWith("/api/")) return env.ASSETS.fetch(request);
+    // This sits above the try/catch below, so it needs its own: a missing
+    // binding or a failing asset service used to throw straight out of the
+    // handler, with none of the logging the API paths get. env.DB is already
+    // guarded a few lines down; this is the same guard for env.ASSETS.
+    if (!path.startsWith("/api/")) {
+      try {
+        if (!env.ASSETS) throw new Error("this Worker has no ASSETS binding");
+        return await env.ASSETS.fetch(request);
+      } catch (err) {
+        console.error(JSON.stringify({ msg: "asset_error", path, error: String(err && err.message || err) }));
+        // Plain text, not the API's JSON shape: a browser asked for a page.
+        return new Response("Could not load that page.", {
+          status: 500,
+          headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" },
+        });
+      }
+    }
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS });
     if (path === "/api/health") return json({ ok: true });
 

@@ -215,6 +215,10 @@ async function createGroup(db, request) {
   const weeks = validWeeks(b.weeks);
   if (!weeks) return fail(400, "weeks must be a whole number from 1 to 8.");
   if (!validStart(b.start)) return fail(400, "start must look like 2026-09-07.");
+  // validStart() judges String(b.start), so bind that same string rather than
+  // the raw value: D1 cannot bind an array or an object, and the throw would
+  // land as a 500 on what is really a bad request. PATCH already coerces.
+  const start = String(b.start);
 
   const names = Array.isArray(b.members) ? b.members : [];
   const members = names
@@ -231,7 +235,7 @@ async function createGroup(db, request) {
     db.prepare(
       "INSERT INTO groups (id, name, start, weeks, pick_day, pick_hour, owner_hash, created_at, updated_at)" +
       " VALUES (?, ?, ?, ?, NULL, NULL, ?, ?, ?)"
-    ).bind(gid, cleanName(b.name, MAX_GROUP_NAME), b.start, weeks, await sha256(ownerToken), now, now),
+    ).bind(gid, cleanName(b.name, MAX_GROUP_NAME), start, weeks, await sha256(ownerToken), now, now),
   ];
   members.forEach((name, i) => {
     stmts.push(
